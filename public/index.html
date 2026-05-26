@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0f172a">
+<meta name="description" content="Live Primary CP Issuances from CCIL F-TRAC Platform">
+<title>FTRAC · Primary CP Issuances</title>
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='16' fill='%230f172a'/><text y='68' x='12' font-size='60' font-family='monospace' fill='%2338bdf8'>F</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap">
+<style>
+  :root {
+    --bg: #0f172a;
+    --surface: #1e293b;
+    --surface2: #263248;
+    --border: #334155;
+    --border2: #475569;
+    --text: #f1f5f9;
+    --muted: #94a3b8;
+    --accent: #38bdf8;
+    --accent-dim: rgba(56,189,248,0.12);
+    --success: #34d399;
+    --warn: #fbbf24;
+    --danger: #f87171;
+    --font: 'DM Mono', 'Fira Code', monospace;
+    --sans: 'DM Sans', system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--text); font-family: var(--sans); min-height: 100vh; font-size: 14px; }
+
+  /* HEADER */
+  header {
+    background: rgba(30,41,59,0.95);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 1.5rem;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .logo { display: flex; align-items: center; gap: 10px; }
+  .logo-badge {
+    background: var(--accent);
+    color: #0c1a2e;
+    font-family: var(--font);
+    font-size: 11px;
+    font-weight: 500;
+    padding: 3px 9px;
+    border-radius: 5px;
+    letter-spacing: 0.06em;
+  }
+  .logo-text .title { font-size: 14px; font-weight: 600; color: var(--text); }
+  .logo-text .sub { font-size: 11px; color: var(--muted); }
+  .header-right { display: flex; align-items: center; gap: 12px; }
+  .live-pill {
+    display: flex; align-items: center; gap: 6px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 4px 10px;
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--success);
+    box-shadow: 0 0 6px var(--success);
+  }
+  .dot.fetching { background: var(--warn); box-shadow: 0 0 6px var(--warn); animation: blink 1s infinite; }
+  .dot.error { background: var(--danger); box-shadow: none; animation: none; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+  .icon-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    width: 32px; height: 32px;
+    border-radius: 7px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+  }
+  .icon-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .icon-btn:disabled { opacity: 0.35; cursor: default; }
+  .spin { animation: spin 1s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* MAIN */
+  main { max-width: 1440px; margin: 0 auto; padding: 1.5rem; }
+
+  /* ERROR */
+  .banner {
+    display: none;
+    background: rgba(248,113,113,0.08);
+    border: 1px solid rgba(248,113,113,0.25);
+    border-radius: 10px;
+    padding: 0.9rem 1.1rem;
+    margin-bottom: 1.25rem;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .banner.show { display: flex; }
+  .banner p { font-size: 13px; color: #fca5a5; line-height: 1.5; }
+  .banner small { font-size: 11px; color: var(--muted); display: block; margin-top: 3px; }
+
+  /* METRICS */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 10px;
+    margin-bottom: 1.25rem;
+  }
+  .metric {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0.9rem 1.1rem;
+  }
+  .metric.hi { border-color: rgba(56,189,248,0.3); }
+  .metric-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 5px; }
+  .metric-value { font-family: var(--font); font-size: 22px; font-weight: 500; color: var(--text); }
+  .metric.hi .metric-value { color: var(--accent); }
+  .metric-unit { font-size: 10px; color: var(--muted); margin-top: 2px; }
+
+  /* CONTROLS */
+  .controls { display: flex; gap: 10px; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; }
+  .search-wrap { position: relative; flex: 1; min-width: 220px; max-width: 500px; }
+  .search-wrap svg { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
+  .search-input {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 9px 12px 9px 36px;
+    color: var(--text);
+    font-size: 14px;
+    font-family: var(--sans);
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .search-input:focus { border-color: var(--accent); }
+  .search-input::placeholder { color: var(--muted); }
+  .ghost-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 12px;
+    cursor: pointer;
+    font-family: var(--sans);
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .ghost-btn:hover { border-color: var(--border2); color: var(--text); }
+  .result-meta { font-size: 12px; color: var(--muted); white-space: nowrap; margin-left: auto; }
+
+  /* TABLE */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .table-scroll { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; white-space: nowrap; font-size: 13px; }
+  thead { background: var(--surface2); border-bottom: 1px solid var(--border); }
+  th {
+    padding: 10px 14px;
+    text-align: left;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--muted);
+    font-weight: 500;
+    cursor: pointer;
+    user-select: none;
+  }
+  th:hover { color: var(--text); }
+  th.sorted { color: var(--accent); }
+  th.r { text-align: right; }
+  td { padding: 9px 14px; border-bottom: 1px solid rgba(51,65,85,0.6); vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(56,189,248,0.03); }
+  td.mono { font-family: var(--font); font-size: 12px; color: var(--muted); }
+  td.issuer { font-weight: 500; min-width: 220px; max-width: 320px; white-space: normal; line-height: 1.4; }
+  td.r { text-align: right; }
+  td.amt { text-align: right; font-family: var(--font); color: var(--accent); }
+  td.yield { text-align: right; font-family: var(--font); color: var(--success); }
+  td.wap { text-align: right; font-family: var(--font); }
+  td.way { text-align: right; font-family: var(--font); color: var(--warn); }
+  mark { background: rgba(251,191,36,0.2); color: var(--warn); border-radius: 2px; padding: 0 1px; }
+
+  /* STATE */
+  .state {
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 4rem 1.5rem;
+    color: var(--muted); gap: 12px; text-align: center;
+  }
+  .state svg { opacity: 0.35; }
+  .state p { font-size: 14px; }
+  .state small { font-size: 12px; color: var(--border2); max-width: 340px; }
+  .loader { width: 22px; height: 22px; border: 2px solid var(--border2); border-top-color: var(--accent); border-radius: 50%; }
+
+  /* PAGINATION */
+  .pager {
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    padding: 11px 14px;
+    border-top: 1px solid var(--border);
+    background: var(--surface2);
+  }
+  .pager.show { display: flex; }
+  .pager-info { font-size: 12px; color: var(--muted); }
+  .pager-btns { display: flex; gap: 6px; }
+  .pager-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 5px 13px;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+    font-family: var(--sans);
+    transition: all 0.15s;
+  }
+  .pager-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+  .pager-btn:disabled { opacity: 0.3; cursor: default; }
+
+  /* FOOTER */
+  .footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1rem;
+    font-size: 11px;
+    color: var(--border2);
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .footer a { color: var(--border2); text-decoration: none; }
+  .footer a:hover { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <span class="logo-badge">FTRAC</span>
+    <div class="logo-text">
+      <div class="title">Primary CP Issuances</div>
+      <div class="sub">CCIL F-TRAC Platform</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="live-pill">
+      <span class="dot fetching" id="dot"></span>
+      <span id="status-label">Loading…</span>
+    </div>
+    <button class="icon-btn" id="refresh-btn" onclick="loadData()" disabled title="Refresh data">
+      <svg id="refresh-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+    </button>
+  </div>
+</header>
+
+<main>
+  <div class="banner" id="error-banner">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    <div>
+      <p id="error-msg"></p>
+      <small id="error-detail"></small>
+    </div>
+  </div>
+
+  <div class="metrics">
+    <div class="metric"><div class="metric-label">Total issuances</div><div class="metric-value" id="m-total">—</div><div class="metric-unit">records</div></div>
+    <div class="metric hi"><div class="metric-label">Unique issuers</div><div class="metric-value" id="m-issuers">—</div><div class="metric-unit">entities</div></div>
+    <div class="metric"><div class="metric-label">Total issued amount</div><div class="metric-value" id="m-amount">—</div><div class="metric-unit">₹ crores</div></div>
+    <div class="metric"><div class="metric-label">Deal date range</div><div class="metric-value" id="m-date" style="font-size:13px;line-height:1.6">—</div><div class="metric-unit">from · to</div></div>
+  </div>
+
+  <div class="controls">
+    <div class="search-wrap">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input class="search-input" id="search-input" type="text" placeholder="Search by issuer name…" oninput="onSearch()" autocomplete="off" spellcheck="false">
+    </div>
+    <button class="ghost-btn" onclick="clearSearch()">Clear</button>
+    <span class="result-meta" id="result-meta"></span>
+  </div>
+
+  <div class="card">
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr id="thead-row">
+            <th onclick="sortBy(0)">ISIN <span id="s0"></span></th>
+            <th onclick="sortBy(1)">ISIN Description <span id="s1"></span></th>
+            <th onclick="sortBy(2)">Maturity Date <span id="s2"></span></th>
+            <th onclick="sortBy(3)" class="sorted">Issuer <span id="s3">↕</span></th>
+            <th onclick="sortBy(4)">Deal Date <span id="s4"></span></th>
+            <th onclick="sortBy(5)">Sett <span id="s5"></span></th>
+            <th onclick="sortBy(6)" class="r">Trades <span id="s6"></span></th>
+            <th onclick="sortBy(7)" class="r">Issue Amount (₹) <span id="s7"></span></th>
+            <th onclick="sortBy(8)" class="r">Min Price <span id="s8"></span></th>
+            <th onclick="sortBy(9)" class="r">Max Price <span id="s9"></span></th>
+            <th onclick="sortBy(10)" class="r">Min Yield% <span id="s10"></span></th>
+            <th onclick="sortBy(11)" class="r">Max Yield% <span id="s11"></span></th>
+            <th onclick="sortBy(12)" class="r">WAP <span id="s12"></span></th>
+            <th onclick="sortBy(13)" class="r">WAY% <span id="s13"></span></th>
+          </tr>
+        </thead>
+        <tbody id="tbody">
+          <tr><td colspan="14"><div class="state"><div class="loader spin"></div><p>Fetching live data from FTRAC…</p></div></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="pager" id="pager">
+      <span class="pager-info" id="pager-info"></span>
+      <div class="pager-btns">
+        <button class="pager-btn" id="prev-btn" onclick="prevPage()">← Prev</button>
+        <button class="pager-btn" id="next-btn" onclick="nextPage()">Next →</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <span id="fetch-time"></span>
+    <span>
+      Data source: <a href="https://www.ftrac.co.in/CP_PRI_MEM_TRAD_MARK_WATC_VIEW.aspx" target="_blank" rel="noopener">CCIL F-TRAC ↗</a>
+      &nbsp;·&nbsp; Refreshes every 5 min
+    </span>
+  </div>
+</main>
+
+<script>
+const API = '/api/ftrac';
+const PAGE_SIZE = 20;
+const ISSUER_COL = 3;
+
+let allRows = [], filtered = [], sortCol = -1, sortAsc = true, page = 0;
+
+async function loadData() {
+  setStatus('fetching', 'Loading…');
+  document.getElementById('refresh-btn').disabled = true;
+  document.getElementById('refresh-icon').classList.add('spin');
+  hideBanner();
+
+  try {
+    const res = await fetch(API, { signal: AbortSignal.timeout(25000) });
+    if (!res.ok) throw new Error('Server error: HTTP ' + res.status);
+    const html = await res.text();
+    const rows = parseHTMLTable(html);
+    if (!rows.length) throw new Error('No table data found in response');
+
+    allRows = rows;
+    page = 0; sortCol = -1; sortAsc = true;
+    clearSortArrows();
+    buildMetrics();
+    applyFilter();
+    document.getElementById('fetch-time').textContent =
+      'Updated ' + new Date().toLocaleTimeString('en-IN', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+    setStatus('ok', 'Live · ' + rows.length + ' records');
+  } catch (err) {
+    setStatus('error', 'Error');
+    showBanner('Could not load data from FTRAC.', err.message);
+    if (!allRows.length) {
+      document.getElementById('tbody').innerHTML =
+        '<tr><td colspan="14"><div class="state">' +
+        '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>' +
+        '<p>Failed to fetch data</p><small>Check the error banner above or try refreshing.</small></div></td></tr>';
+    }
+  } finally {
+    document.getElementById('refresh-btn').disabled = false;
+    document.getElementById('refresh-icon').classList.remove('spin');
+  }
+}
+
+function parseHTMLTable(html) {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, 'text/html');
+  const tables = [...doc.querySelectorAll('table')];
+  if (!tables.length) return [];
+  const tbl = tables.reduce((best, t) =>
+    t.querySelectorAll('tr').length > best.querySelectorAll('tr').length ? t : best
+  );
+  const rows = [];
+  tbl.querySelectorAll('tr').forEach((tr, i) => {
+    if (i === 0) return;
+    const cells = [...tr.querySelectorAll('td, th')];
+    if (cells.length >= 4) rows.push(cells.map(c => c.textContent.trim()));
+  });
+  return rows;
+}
+
+function buildMetrics() {
+  const total = allRows.length;
+  const issuers = new Set(allRows.map(r => r[ISSUER_COL])).size;
+  const amounts = allRows.map(r => num(r[7])).filter(n => !isNaN(n));
+  const sum = amounts.reduce((s, n) => s + n, 0);
+  const dates = allRows.map(r => r[4]).filter(Boolean).sort();
+  set('m-total', total.toLocaleString('en-IN'));
+  set('m-issuers', issuers.toLocaleString('en-IN'));
+  set('m-amount', (sum / 1e7).toFixed(2));
+  set('m-date', dates.length ? dates[0] + '\n' + dates[dates.length - 1] : '—');
+}
+
+function onSearch() { page = 0; applyFilter(); }
+function clearSearch() { document.getElementById('search-input').value = ''; page = 0; applyFilter(); }
+
+function applyFilter() {
+  const q = document.getElementById('search-input').value.trim().toLowerCase();
+  filtered = q ? allRows.filter(r => r[ISSUER_COL].toLowerCase().includes(q)) : [...allRows];
+  if (sortCol >= 0) {
+    filtered.sort((a, b) => {
+      const na = num(a[sortCol]), nb = num(b[sortCol]);
+      if (!isNaN(na) && !isNaN(nb)) return sortAsc ? na - nb : nb - na;
+      return sortAsc ? a[sortCol].localeCompare(b[sortCol]) : b[sortCol].localeCompare(a[sortCol]);
+    });
+  }
+  const count = filtered.length;
+  set('result-meta', q ? count + ' match' + (count !== 1 ? 'es' : '') + ' of ' + allRows.length : '');
+  renderTable();
+}
+
+function sortBy(col) {
+  if (sortCol === col) sortAsc = !sortAsc; else { sortCol = col; sortAsc = true; }
+  clearSortArrows();
+  const th = document.querySelectorAll('thead th')[col];
+  if (th) th.classList.add('sorted');
+  const span = document.getElementById('s' + col);
+  if (span) span.textContent = sortAsc ? '↑' : '↓';
+  page = 0; applyFilter();
+}
+
+function clearSortArrows() {
+  document.querySelectorAll('thead th').forEach(th => th.classList.remove('sorted'));
+  for (let i = 0; i < 14; i++) { const s = document.getElementById('s'+i); if(s) s.textContent = ''; }
+}
+
+function renderTable() {
+  const q = document.getElementById('search-input').value.trim().toLowerCase();
+  const start = page * PAGE_SIZE;
+  const slice = filtered.slice(start, start + PAGE_SIZE);
+  const tbody = document.getElementById('tbody');
+
+  if (!slice.length) {
+    tbody.innerHTML = '<tr><td colspan="14"><div class="state">' +
+      '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>' +
+      '<p>' + (q ? 'No issuers matching <strong style="color:var(--warn)">"' + esc(q) + '"</strong>' : 'No records') + '</p>' +
+      (q ? '<small>Try a shorter term or clear the search to see all records.</small>' : '') +
+      '</div></td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = slice.map(r => {
+    const issuer = q
+      ? esc(r[ISSUER_COL]).replace(new RegExp('(' + escReg(esc(q)) + ')', 'gi'), '<mark>$1</mark>')
+      : esc(r[ISSUER_COL]);
+    return `<tr>
+      <td class="mono">${esc(r[0])}</td>
+      <td style="max-width:240px;white-space:normal;font-size:12px;color:var(--muted);line-height:1.4">${esc(r[1])}</td>
+      <td class="mono">${esc(r[2])}</td>
+      <td class="issuer">${issuer}</td>
+      <td class="mono">${esc(r[4])}</td>
+      <td style="color:var(--muted);font-size:12px">${esc(r[5])}</td>
+      <td class="r">${esc(r[6])}</td>
+      <td class="amt">${fmtAmt(r[7])}</td>
+      <td class="r">${fmt4(r[8])}</td>
+      <td class="r">${fmt4(r[9])}</td>
+      <td class="yield">${fmt4(r[10])}</td>
+      <td class="yield">${fmt4(r[11])}</td>
+      <td class="wap">${fmt4(r[12])}</td>
+      <td class="way">${fmt4(r[13])}</td>
+    </tr>`;
+  }).join('');
+
+  const total = filtered.length;
+  const pager = document.getElementById('pager');
+  pager.className = total > PAGE_SIZE ? 'pager show' : 'pager';
+  set('pager-info', `Showing ${start + 1}–${Math.min(start + PAGE_SIZE, total)} of ${total.toLocaleString('en-IN')}`);
+  document.getElementById('prev-btn').disabled = page === 0;
+  document.getElementById('next-btn').disabled = (page + 1) * PAGE_SIZE >= total;
+}
+
+function prevPage() { if (page > 0) { page--; renderTable(); } }
+function nextPage() { if ((page + 1) * PAGE_SIZE < filtered.length) { page++; renderTable(); } }
+
+function num(v) { return parseFloat(String(v).replace(/,/g, '')); }
+function fmtAmt(v) { const n = num(v); return isNaN(n) ? esc(String(v)) : '₹\u202f' + (n / 1e7).toFixed(2) + ' Cr'; }
+function fmt4(v) { const n = num(v); return isNaN(n) ? esc(String(v)) : n.toFixed(4); }
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function escReg(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+function set(id, val) { const el = document.getElementById(id); if (el) el.textContent = val; }
+
+function setStatus(state, label) {
+  const dot = document.getElementById('dot');
+  dot.className = 'dot' + (state === 'ok' ? '' : ' ' + state);
+  set('status-label', label);
+}
+function showBanner(msg, detail) {
+  set('error-msg', msg); set('error-detail', detail || '');
+  document.getElementById('error-banner').classList.add('show');
+}
+function hideBanner() { document.getElementById('error-banner').classList.remove('show'); }
+
+// auto-refresh every 5 minutes
+loadData();
+setInterval(loadData, 5 * 60 * 1000);
+
+// service worker for offline shell
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js').catch(() => {});
+}
+</script>
+</body>
+</html>
