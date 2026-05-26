@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Live Primary CP Issuances from CCIL F-TRAC with issuer search",
   "engines": {
-    "node": "18.x"
+    "node": "20.x"
   },
   "scripts": {
     "dev": "vercel dev"
