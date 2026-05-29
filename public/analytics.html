@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#0f172a">
-<title>FTRAC · Issuer Analytics</title>
+<title>FTRAC · My Rate Tracker</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='16' fill='%230f172a'/><text y='68' x='12' font-size='60' font-family='monospace' fill='%2338bdf8'>F</text></svg>">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
@@ -15,132 +15,158 @@
   --text:#f1f5f9; --muted:#94a3b8;
   --accent:#38bdf8; --accent-dim:rgba(56,189,248,.12);
   --success:#34d399; --warn:#fbbf24; --danger:#f87171;
-  --purple:#a78bfa; --orange:#fb923c; --pink:#f472b6; --teal:#2dd4bf;
+  --purple:#a78bfa;
   --font:'DM Mono','Fira Code',monospace;
   --sans:'DM Sans',system-ui,sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh;font-size:14px;}
-
 /* HEADER */
 header{background:rgba(30,41,59,.96);backdrop-filter:blur(8px);border-bottom:1px solid var(--border);
   padding:0 1.5rem;height:56px;display:flex;align-items:center;justify-content:space-between;
-  position:sticky;top:0;z-index:100;}
+  position:sticky;top:0;z-index:200;}
 .logo{display:flex;align-items:center;gap:10px;}
-.logo-badge{background:var(--accent);color:#0c1a2e;font-family:var(--font);font-size:11px;font-weight:500;
-  padding:3px 9px;border-radius:5px;letter-spacing:.06em;}
+.logo-badge{background:var(--accent);color:#0c1a2e;font-family:var(--font);font-size:11px;font-weight:500;padding:3px 9px;border-radius:5px;letter-spacing:.06em;}
 .logo-text .title{font-size:14px;font-weight:600;}
 .logo-text .sub{font-size:11px;color:var(--muted);}
 .nav-links{display:flex;gap:4px;}
-.nav-link{padding:6px 14px;border-radius:7px;font-size:13px;font-weight:500;cursor:pointer;
-  border:none;background:transparent;color:var(--muted);text-decoration:none;transition:all .15s;
-  display:flex;align-items:center;gap:6px;}
+.nav-link{padding:6px 14px;border-radius:7px;font-size:13px;font-weight:500;cursor:pointer;border:none;
+  background:transparent;color:var(--muted);text-decoration:none;transition:all .15s;display:flex;align-items:center;gap:6px;}
 .nav-link:hover{color:var(--text);background:var(--surface2);}
 .nav-link.active{background:var(--surface2);color:var(--accent);}
-
+/* MAIN */
 main{max-width:1440px;margin:0 auto;padding:1.25rem 1.5rem;}
-
-/* PAGE TITLE + CONTROLS */
-.page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:12px;}
-.page-title h2{font-size:18px;font-weight:600;letter-spacing:-.01em;}
-.page-title p{font-size:12px;color:var(--muted);margin-top:3px;}
-.header-controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
-.filter-label{font-size:11px;color:var(--muted);}
-.select-input{background:var(--surface2);border:1px solid var(--border);border-radius:7px;
-  padding:6px 10px;color:var(--text);font-size:12px;font-family:var(--sans);outline:none;cursor:pointer;}
-.select-input:focus{border-color:var(--accent);}
-.ghost-btn{background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:7px;
-  padding:6px 14px;font-size:12px;cursor:pointer;font-family:var(--sans);transition:all .15s;}
-.ghost-btn:hover{border-color:var(--border2);color:var(--text);}
-.accent-btn{background:var(--accent);color:#0c1a2e;border:none;border-radius:7px;
-  padding:6px 16px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:opacity .15s;}
-.accent-btn:hover{opacity:.88;}
-
-/* NO DATA STATE */
-.no-data{background:var(--surface);border:1px solid var(--border);border-radius:12px;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  padding:4rem 2rem;gap:14px;text-align:center;}
-.no-data h3{font-size:15px;font-weight:600;}
-.no-data p{font-size:13px;color:var(--muted);max-width:360px;line-height:1.6;}
-
-/* SUMMARY CARDS */
-.summary-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:1.5rem;}
+/* TABS */
+.page-tabs{display:flex;gap:4px;background:var(--surface);border:1px solid var(--border);
+  border-radius:10px;padding:4px;width:fit-content;margin-bottom:1.25rem;}
+.ptab{padding:7px 18px;border-radius:7px;font-size:13px;font-weight:500;cursor:pointer;
+  border:none;background:transparent;color:var(--muted);transition:all .15s;font-family:var(--sans);}
+.ptab:hover{color:var(--text);}
+.ptab.active{background:var(--surface2);color:var(--accent);}
+.tab-pane{display:none;}
+.tab-pane.active{display:block;}
+/* LAYOUT */
+.two-col{display:grid;grid-template-columns:280px 1fr;gap:14px;align-items:start;}
+.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:1.25rem;}
+@media(max-width:1000px){.two-col{grid-template-columns:1fr;}}
+/* CARDS */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.1rem;}
+.card-title{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.07em;
+  color:var(--muted);margin-bottom:.9rem;display:flex;align-items:center;justify-content:space-between;}
+.card-title .action{font-size:11px;font-weight:400;text-transform:none;letter-spacing:0;
+  color:var(--accent);cursor:pointer;opacity:.8;}
+.card-title .action:hover{opacity:1;}
+/* STAT CARDS */
 .scard{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:.85rem 1rem;}
 .scard.hi{border-color:rgba(56,189,248,.3);}
-.scard-label{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:5px;}
-.scard-value{font-family:var(--font);font-size:20px;font-weight:500;}
-.scard.hi .scard-value{color:var(--accent);}
-.scard-sub{font-size:10px;color:var(--muted);margin-top:2px;}
-
-/* CHART GRID */
-.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:1.5rem;}
-@media(max-width:900px){.chart-grid{grid-template-columns:1fr;}}
-.chart-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.1rem;}
-.chart-card.wide{grid-column:1/-1;}
-.chart-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;}
-.chart-title{font-size:13px;font-weight:600;}
-.chart-sub{font-size:11px;color:var(--muted);margin-top:2px;}
-.chart-legend{display:flex;gap:12px;flex-wrap:wrap;}
-.legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted);}
-.legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
-.chart-wrap{position:relative;height:280px;}
-.chart-wrap.tall{height:360px;}
-.chart-wrap.scatter{height:320px;}
-
-/* ISSUER TABLE */
-.section-title{font-size:13px;font-weight:600;margin-bottom:.85rem;display:flex;align-items:center;gap:8px;}
-.section-title span{font-size:11px;color:var(--muted);font-weight:400;}
-.table-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:1.5rem;}
-.table-controls{display:flex;align-items:center;gap:10px;padding:.7rem 1rem;
-  border-bottom:1px solid var(--border);background:var(--surface2);flex-wrap:wrap;}
-.search-wrap{position:relative;flex:1;min-width:160px;max-width:340px;}
-.search-wrap svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none;}
-.search-input{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:7px;
-  padding:7px 11px 7px 32px;color:var(--text);font-size:13px;font-family:var(--sans);outline:none;transition:border-color .15s;}
-.search-input:focus{border-color:var(--accent);}
-.search-input::placeholder{color:var(--muted);}
-.result-meta{font-size:12px;color:var(--muted);margin-left:auto;}
-.table-scroll{overflow-x:auto;}
-table{width:100%;border-collapse:collapse;font-size:13px;white-space:nowrap;}
-thead{background:var(--surface2);border-bottom:1px solid var(--border);}
-th{padding:9px 14px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.07em;
-  color:var(--muted);font-weight:500;cursor:pointer;user-select:none;}
-th:hover{color:var(--text);}
-th.sorted{color:var(--accent);}
-th.r{text-align:right;}
-td{padding:8px 14px;border-bottom:1px solid rgba(51,65,85,.5);vertical-align:middle;}
-tr:last-child td{border-bottom:none;}
-tr:hover td{background:rgba(56,189,248,.03);}
-td.issuer-cell{font-weight:500;min-width:180px;max-width:280px;white-space:normal;line-height:1.4;}
-td.mono{font-family:var(--font);font-size:12px;text-align:right;}
-td.r{text-align:right;}
-.instr-tag{display:inline-flex;align-items:center;gap:4px;font-size:10px;padding:2px 7px;
-  border-radius:20px;font-weight:600;margin:1px 2px;}
-.instr-tag.cp{background:rgba(56,189,248,.15);color:var(--accent);}
-.instr-tag.cd{background:rgba(167,139,250,.15);color:var(--purple);}
-.instr-tag.pri{border:1px solid rgba(52,211,153,.3);color:var(--success);}
-.instr-tag.sec{border:1px solid rgba(251,191,36,.3);color:var(--warn);}
-.bar-cell{display:flex;align-items:center;gap:8px;}
-.mini-bar{height:6px;border-radius:3px;background:var(--accent);min-width:2px;flex-shrink:0;}
-.mini-bar.cd{background:var(--purple);}
-.rank-badge{width:20px;height:20px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);
-  display:flex;align-items:center;justify-content:center;font-size:10px;font-family:var(--font);color:var(--muted);flex-shrink:0;}
-.rank-badge.top3{background:rgba(251,191,36,.15);border-color:rgba(251,191,36,.3);color:var(--warn);}
-.change-up{color:var(--success);}
-.change-dn{color:var(--danger);}
-
-/* YIELD HEATMAP */
-.heatmap-grid{display:grid;gap:4px;margin-top:.5rem;}
-.heatmap-row{display:flex;gap:4px;align-items:center;}
-.heatmap-label{font-size:11px;color:var(--muted);width:160px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.heatmap-cell{height:24px;border-radius:4px;flex:1;display:flex;align-items:center;justify-content:center;
-  font-size:10px;font-family:var(--font);font-weight:500;min-width:40px;}
-
+.sc-label{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:5px;}
+.sc-val{font-family:var(--font);font-size:20px;font-weight:500;}
+.sc-val.accent{color:var(--accent);}
+.sc-sub{font-size:10px;color:var(--muted);margin-top:2px;}
+.bps-badge{font-size:10px;padding:2px 7px;border-radius:20px;margin-left:6px;font-family:var(--sans);font-weight:600;}
+.bps-up{background:rgba(248,113,113,.15);color:#f87171;}
+.bps-dn{background:rgba(52,211,153,.15);color:#34d399;}
+.bps-fl{background:var(--surface2);color:var(--muted);}
+/* WATCHLIST */
+.wi{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid rgba(51,65,85,.5);}
+.wi:last-child{border-bottom:none;}
+.wi-left{flex:1;min-width:0;}
+.wi-name{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.wi-meta{display:flex;align-items:center;gap:6px;margin-top:3px;flex-wrap:wrap;}
+.ind-tag{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:500;cursor:pointer;border:1px solid transparent;}
+.ind-tag:hover{opacity:.8;}
+.wi-rate{text-align:right;flex-shrink:0;}
+.wi-way{font-family:var(--font);font-size:14px;font-weight:500;}
+.wi-chg{font-size:10px;font-family:var(--font);margin-top:1px;}
+.chg-up{color:var(--danger);}
+.chg-dn{color:var(--success);}
+.chg-fl{color:var(--muted);}
+.wi-actions{display:flex;gap:4px;flex-shrink:0;}
+.wi-btn{background:transparent;border:none;color:var(--muted);cursor:pointer;padding:3px;border-radius:4px;font-size:13px;line-height:1;}
+.wi-btn:hover{color:var(--danger);background:rgba(248,113,113,.1);}
+.add-row{display:flex;gap:8px;margin-top:10px;}
+.add-input{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:7px;
+  padding:7px 10px;color:var(--text);font-size:13px;font-family:var(--sans);outline:none;}
+.add-input:focus{border-color:var(--accent);}
+.add-input::placeholder{color:var(--muted);}
+.mini-btn{background:var(--accent);color:#0c1a2e;border:none;border-radius:7px;padding:7px 12px;
+  font-size:12px;font-weight:600;cursor:pointer;font-family:var(--sans);white-space:nowrap;}
+.mini-btn:hover{opacity:.88;}
+.mini-btn.ghost{background:transparent;border:1px solid var(--border);color:var(--muted);}
+.mini-btn.ghost:hover{border-color:var(--border2);color:var(--text);background:transparent;}
+/* AUTOCOMPLETE */
+.ac-wrap{position:relative;flex:1;}
+.ac-list{position:absolute;top:100%;left:0;right:0;background:var(--surface2);border:1px solid var(--border);
+  border-radius:7px;margin-top:3px;z-index:100;max-height:180px;overflow-y:auto;}
+.ac-item{padding:8px 12px;font-size:13px;cursor:pointer;color:var(--text);}
+.ac-item:hover{background:var(--surface3);}
+.ac-item small{color:var(--muted);font-size:11px;display:block;margin-top:1px;}
+/* CHART */
+.chart-wrap{position:relative;height:240px;}
+.chart-wrap.short{height:180px;}
+.chart-empty{display:flex;align-items:center;justify-content:center;height:100%;
+  color:var(--muted);font-size:13px;text-align:center;flex-direction:column;gap:8px;}
+/* INDUSTRY */
+.ind-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(51,65,85,.5);}
+.ind-row:last-child{border-bottom:none;}
+.ind-name{font-size:13px;font-weight:500;min-width:130px;}
+.ind-bar-wrap{flex:1;height:6px;background:var(--surface2);border-radius:3px;overflow:hidden;}
+.ind-bar{height:100%;border-radius:3px;transition:width .4s;}
+.ind-way{font-family:var(--font);font-size:12px;min-width:46px;text-align:right;}
+.ind-chg{font-size:11px;font-family:var(--font);min-width:50px;text-align:right;}
+.ind-count{font-size:11px;color:var(--muted);min-width:60px;text-align:right;}
+/* HEATMAP */
+.heatmap{overflow-x:auto;}
+.hm-grid{display:grid;gap:3px;min-width:fit-content;}
+.hm-cell{height:26px;border-radius:4px;display:flex;align-items:center;justify-content:center;
+  font-size:10px;font-family:var(--font);font-weight:500;min-width:56px;}
+.hm-label{height:26px;display:flex;align-items:center;font-size:11px;color:var(--muted);
+  white-space:nowrap;padding-right:8px;min-width:120px;}
+.hm-header{height:26px;display:flex;align-items:center;justify-content:center;
+  font-size:10px;color:var(--muted);min-width:56px;}
+/* ALERTS */
+.alert-item{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid rgba(51,65,85,.5);}
+.alert-item:last-child{border-bottom:none;}
+.alert-dot{width:7px;height:7px;border-radius:50%;margin-top:4px;flex-shrink:0;}
+.alert-body{flex:1;}
+.alert-title{font-size:13px;font-weight:500;}
+.alert-sub{font-size:12px;color:var(--muted);margin-top:2px;line-height:1.5;}
+.alert-time{font-size:11px;color:var(--muted);flex-shrink:0;}
+.threshold-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid rgba(51,65,85,.5);}
+.threshold-row:last-child{border-bottom:none;}
+.thr-name{font-size:12px;font-weight:500;flex:1;}
+.thr-input{width:72px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;
+  padding:5px 8px;color:var(--text);font-size:12px;font-family:var(--font);outline:none;text-align:right;}
+.thr-input:focus{border-color:var(--accent);}
+.thr-label{font-size:11px;color:var(--muted);}
+/* INLINE EDIT */
+.ind-edit-wrap{display:flex;align-items:center;gap:4px;}
+.ind-edit-input{background:var(--surface2);border:1px solid var(--accent);border-radius:5px;
+  padding:2px 7px;color:var(--text);font-size:11px;font-family:var(--sans);outline:none;width:110px;}
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:300;display:flex;align-items:center;justify-content:center;}
+.modal{background:var(--surface);border:1px solid var(--border2);border-radius:14px;padding:1.5rem;width:420px;max-width:90vw;}
+.modal h3{font-size:15px;font-weight:600;margin-bottom:.75rem;}
+.modal p{font-size:13px;color:var(--muted);margin-bottom:1rem;line-height:1.6;}
+.modal-row{display:flex;gap:8px;margin-top:.75rem;}
+.modal-input{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:7px;
+  padding:8px 11px;color:var(--text);font-size:13px;font-family:var(--sans);outline:none;}
+.modal-input:focus{border-color:var(--accent);}
+/* NO DATA */
+.no-data{background:var(--surface);border:1px solid var(--border);border-radius:12px;
+  padding:3.5rem 2rem;display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;}
+.no-data p{font-size:13px;color:var(--muted);max-width:360px;line-height:1.6;}
+/* LEGEND */
+.legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;}
+.leg-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted);}
+.leg-dot{width:8px;height:8px;border-radius:50%;}
 /* FOOTER */
-.footer{display:flex;justify-content:space-between;align-items:center;margin-top:1rem;
-  font-size:11px;color:var(--border2);flex-wrap:wrap;gap:6px;}
+.footer{display:flex;justify-content:space-between;font-size:11px;color:var(--border2);margin-top:1rem;flex-wrap:wrap;gap:6px;}
 .footer a{color:var(--border2);text-decoration:none;}
 .footer a:hover{color:var(--accent);}
+/* SPINNER */
+.spin{animation:spin 1s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
@@ -155,554 +181,731 @@ td.r{text-align:right;}
   </div>
   <nav class="nav-links">
     <a class="nav-link" href="/index.html">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-      Data
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Data
     </a>
     <a class="nav-link active" href="/analytics.html">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-      Analytics
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Analytics
     </a>
   </nav>
 </header>
 
-<main id="main">
-  <!-- Rendered by JS -->
+<main>
+  <div class="page-tabs">
+    <button class="ptab active" onclick="showTab('watchlist',this)">My watchlist</button>
+    <button class="ptab" onclick="showTab('industry',this)">Industry view</button>
+    <button class="ptab" onclick="showTab('alerts',this)">Rate alerts</button>
+  </div>
+
+  <!-- WATCHLIST TAB -->
+  <div class="tab-pane active" id="tab-watchlist">
+    <div class="three-col" id="stat-cards">
+      <div class="scard hi"><div class="sc-label">Watched issuers</div><div class="sc-val accent" id="sc-count">—</div><div class="sc-sub" id="sc-ind-count">—</div></div>
+      <div class="scard"><div class="sc-label">Your accounts avg WAY</div><div class="sc-val" id="sc-my-way">—</div><div class="sc-sub" id="sc-my-bps"></div></div>
+      <div class="scard"><div class="sc-label">Market avg WAY</div><div class="sc-val" id="sc-mkt-way">—</div><div class="sc-sub" id="sc-mkt-bps"></div></div>
+    </div>
+    <div class="two-col">
+      <!-- LEFT: watchlist panel -->
+      <div class="card">
+        <div class="card-title">My issuers</div>
+        <div id="watchlist-body"></div>
+        <!-- Add issuer -->
+        <div class="add-row">
+          <div class="ac-wrap">
+            <input class="add-input" id="add-input" placeholder="Type issuer name…" oninput="onAddInput()" onkeydown="onAddKey(event)" autocomplete="off">
+            <div class="ac-list" id="ac-list" style="display:none"></div>
+          </div>
+          <button class="mini-btn" onclick="addIssuerFromInput()">+ Add</button>
+        </div>
+      </div>
+      <!-- RIGHT: trend chart -->
+      <div class="card">
+        <div class="card-title">WAY% trend — watched issuers <span class="action" onclick="renderTrendChart()">↺</span></div>
+        <div class="chart-wrap" id="trend-wrap">
+          <div class="chart-empty">Fetch data on the Data page first, then add issuers to your watchlist.</div>
+        </div>
+        <div class="legend" id="trend-legend"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INDUSTRY TAB -->
+  <div class="tab-pane" id="tab-industry">
+    <div class="two-col">
+      <div class="card">
+        <div class="card-title">Avg WAY% by industry</div>
+        <div id="industry-bars"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">WAY% heatmap — issuer × date <span style="font-size:10px;color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0">darker = higher yield</span></div>
+        <div class="heatmap" id="heatmap-wrap">
+          <div class="chart-empty" style="height:120px">Add issuers to watchlist to see heatmap.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ALERTS TAB -->
+  <div class="tab-pane" id="tab-alerts">
+    <div class="two-col">
+      <div class="card">
+        <div class="card-title">Set thresholds</div>
+        <div id="threshold-list"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Triggered alerts <span class="action" onclick="checkAlerts()">Check now</span></div>
+        <div id="alert-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <span id="footer-time"></span>
+    <span>Source: <a href="https://www.ftrac.co.in" target="_blank">CCIL F-TRAC ↗</a></span>
+  </div>
 </main>
 
-<script>
-// ─── Palette ─────────────────────────────────────────────────
-const COLORS = ['#38bdf8','#a78bfa','#34d399','#fb923c','#f472b6','#fbbf24','#2dd4bf','#818cf8','#4ade80','#f87171','#60a5fa','#c084fc'];
+<!-- INDUSTRY EDIT MODAL -->
+<div class="modal-overlay" id="ind-modal" style="display:none" onclick="closeIndModal(event)">
+  <div class="modal">
+    <h3>Edit industry tag</h3>
+    <p id="ind-modal-issuer" style="font-weight:500;font-size:14px;color:var(--text);margin-bottom:.5rem"></p>
+    <p>Auto-detected: <strong id="ind-modal-auto"></strong>. Set a custom tag or leave blank to use auto-detected.</p>
+    <div class="modal-row">
+      <input class="modal-input" id="ind-modal-input" placeholder="e.g. NBFC, Banking, PSU…" list="ind-suggestions">
+      <datalist id="ind-suggestions"></datalist>
+      <button class="mini-btn ghost" onclick="closeIndModal()">Cancel</button>
+      <button class="mini-btn" onclick="saveIndTag()">Save</button>
+    </div>
+  </div>
+</div>
 
-const INSTRUMENT_META = {
-  'cp-primary':   { label:'CP Pri', type:'cp', market:'pri', issuerCol:3, amtCol:7,  wayCol:13, wapCol:12 },
-  'cp-secondary': { label:'CP Sec', type:'cp', market:'sec', issuerCol:3, amtCol:7,  wayCol:13, wapCol:12 },
-  'cd-primary':   { label:'CD Pri', type:'cd', market:'pri', issuerCol:3, amtCol:7,  wayCol:13, wapCol:12 },
-  'cd-secondary': { label:'CD Sec', type:'cd', market:'sec', issuerCol:2, amtCol:6,  wayCol:12, wapCol:11 },
+<script>
+// ─── INSTRUMENT META ──────────────────────────────────────────
+const IMETA = {
+  'cp-primary':   { issuerCol:3, amtCol:7,  wayCol:13, dateCol:4 },
+  'cp-secondary': { issuerCol:3, amtCol:7,  wayCol:13, dateCol:4 },
+  'cd-primary':   { issuerCol:3, amtCol:7,  wayCol:13, dateCol:4 },
+  'cd-secondary': { issuerCol:2, amtCol:6,  wayCol:12, dateCol:3 },
 };
 
-// Chart.js global defaults
-Chart.defaults.color = '#94a3b8';
-Chart.defaults.borderColor = '#334155';
-Chart.defaults.font.family = "'DM Sans', system-ui, sans-serif";
-Chart.defaults.font.size   = 12;
+// Industry palette
+const IND_COLORS = {
+  'Banking':          { bg:'rgba(56,189,248,.2)',  text:'#38bdf8' },
+  'NBFC':             { bg:'rgba(167,139,250,.2)', text:'#a78bfa' },
+  'PSU / Govt':       { bg:'rgba(52,211,153,.2)',  text:'#34d399' },
+  'Manufacturing':    { bg:'rgba(251,191,36,.2)',  text:'#fbbf24' },
+  'Housing Finance':  { bg:'rgba(251,146,60,.2)',  text:'#fb923c' },
+  'Insurance':        { bg:'rgba(244,114,182,.2)', text:'#f472b6' },
+  'Infrastructure':   { bg:'rgba(45,212,191,.2)',  text:'#2dd4bf' },
+  'Technology':       { bg:'rgba(129,140,248,.2)', text:'#818cf8' },
+  'Other':            { bg:'rgba(148,163,184,.2)', text:'#94a3b8' },
+};
+const IND_CHART_COLORS = ['#38bdf8','#a78bfa','#34d399','#fbbf24','#fb923c','#f472b6','#2dd4bf','#818cf8','#f87171','#60a5fa'];
 
-// ─── Load data from sessionStorage (written by index.html) ───
+// ─── STATE (localStorage) ────────────────────────────────────
+// watchlist: [{ issuer, indOverride }]
+// thresholds: { issuer: { above: number|null, below: number|null } }
+function loadWL()   { try { return JSON.parse(localStorage.getItem('ftrac_watchlist') || '[]'); } catch { return []; } }
+function saveWL(v)  { localStorage.setItem('ftrac_watchlist', JSON.stringify(v)); }
+function loadThr()  { try { return JSON.parse(localStorage.getItem('ftrac_thresholds') || '{}'); } catch { return {}; } }
+function saveThr(v) { localStorage.setItem('ftrac_thresholds', JSON.stringify(v)); }
+
+let watchlist  = loadWL();
+let thresholds = loadThr();
+let trendChart = null;
+let editingIssuer = null;
+
+// ─── LOAD DATA FROM SESSION ───────────────────────────────────
 function loadTabData() {
   try { return JSON.parse(sessionStorage.getItem('ftrac_tabdata') || '{}'); } catch { return {}; }
 }
 
-let tabData    = loadTabData();
-let chartObjs  = [];
-let tableRows  = [];
-let sortCol    = 0;
-let sortAsc    = false; // default: sort by total amount desc
-let searchQ    = '';
+// ─── INDUSTRY AUTO-DETECT ────────────────────────────────────
+function detectIndustry(name) {
+  const n = name.toLowerCase();
+  if (/\b(nabard|nhai|npcil|ntpc|bhel|ongc|gail|sail|sidbi|exim bank|hudco|irfc|nhb|rec ltd|rec limited|power finance|india infrastructure|npc\b|power grid|coal india|bharat petroleum|hindustan petroleum|indian oil|oil india|airport authority|fci\b|food corp)\b/.test(n)) return 'PSU / Govt';
+  if (/\b(bank|banking)\b/.test(n) && !/finance bank/.test(n)) return 'Banking';
+  if (/housing finance|home finance|gruh|can fin|repco|aavas|aptus|home loan|dewan housing|pnb housing|lic housing|indiabulls housing|godrej housing/.test(n)) return 'Housing Finance';
+  if (/\b(insurance|lic\b)\b/.test(n)) return 'Insurance';
+  if (/\b(finance|capital|finserv|fincorp|finvest|lending|leasing|credit corp|muthoot|manappuram|shriram|mahindra fin|aditya birla fin|tata capital|piramal fin|l&t fin|chola|cholamandalam|sundaram fin|hero fincorp|fullerton|iifl|jm fin)\b/.test(n)) return 'NBFC';
+  if (/\b(pharma|pharmaceutical|drug|hospital|healthcare|health care|medic)\b/.test(n)) return 'Healthcare';
+  if (/\b(tech|software|it\b|systems|infosys|wipro|hcl|tcs|cognizant|digital|infotech)\b/.test(n)) return 'Technology';
+  if (/\b(realty|real estate|construction|builders|developer|infratech)\b/.test(n)) return 'Real Estate';
+  if (/\b(road|highway|airport|port|power|energy|renewable|solar|wind|transmission|distribution|infra)\b/.test(n)) return 'Infrastructure';
+  if (/\b(steel|metal|mining|aluminium|zinc|copper|iron)\b/.test(n)) return 'Metals & Mining';
+  if (/\b(cement|ultra|ambuja|acc\b|shree cement)\b/.test(n)) return 'Manufacturing';
+  if (/\b(petroleum|petro|oil|refinery|chemicals|fertilizer|agrochemical|agro)\b/.test(n)) return 'Oil & Chemicals';
+  if (/\b(telecom|teleservices|mobile|communications)\b/.test(n)) return 'Telecom';
+  if (/\b(auto|automobile|tyre|motors|vehicles|maruti|hero|bajaj auto|tvs)\b/.test(n)) return 'Auto';
+  if (/\b(industries|industrial|limited|ltd)\b/.test(n)) return 'Manufacturing';
+  return 'Other';
+}
 
-// ─── Helpers ─────────────────────────────────────────────────
-function num(v)   { return parseFloat(String(v||'').replace(/,/g,'')); }
-function esc(s)   { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function fmt2(n)  { return isNaN(n) ? '—' : n.toFixed(2); }
-function fmt4(n)  { return isNaN(n) ? '—' : n.toFixed(4); }
-function fmtCr(n) { return isNaN(n) ? '—' : '₹ '+(n/1e7).toFixed(2)+' Cr'; }
-function fmtINR(n){ return isNaN(n) ? '—' : n.toLocaleString('en-IN', {maximumFractionDigits:2}); }
+function getIndustry(issuer) {
+  const item = watchlist.find(w => w.issuer === issuer);
+  return (item && item.indOverride) ? item.indOverride : detectIndustry(issuer);
+}
 
-// ─── Build issuer aggregates ─────────────────────────────────
-function buildIssuerMap() {
-  // issuerMap[issuerName][instrument] = { trades, totalAmt, ways[], waps[] }
+function indColor(ind) {
+  return IND_COLORS[ind] || { bg:'rgba(148,163,184,.2)', text:'#94a3b8' };
+}
+
+// ─── BUILD ISSUER DATA MAP ────────────────────────────────────
+// Returns { issuer: { dates: { dateStr: [way] }, totalAmt, allWays } }
+function buildIssuerDataMap() {
+  const tabData = loadTabData();
   const map = {};
-
-  for (const [instrument, rows] of Object.entries(tabData)) {
+  for (const [instr, rows] of Object.entries(tabData)) {
     if (!rows || !rows.length) continue;
-    const meta = INSTRUMENT_META[instrument];
-    if (!meta) continue;
-
+    const m = IMETA[instr];
+    if (!m) continue;
     for (const row of rows) {
-      const issuer = (row[meta.issuerCol] || '').trim();
+      const issuer = (row[m.issuerCol] || '').trim();
       if (!issuer) continue;
-      const amt  = num(row[meta.amtCol]);
-      const way  = num(row[meta.wayCol]);
-      const wap  = num(row[meta.wapCol]);
-      const trds = num(row[6] || row[5] || '1');
-
-      if (!map[issuer]) map[issuer] = {};
-      if (!map[issuer][instrument]) map[issuer][instrument] = { trades:0, totalAmt:0, ways:[], waps:[] };
-
-      const b = map[issuer][instrument];
-      if (!isNaN(trds)) b.trades  += trds;
-      if (!isNaN(amt))  b.totalAmt += amt;
-      if (!isNaN(way))  b.ways.push(way);
-      if (!isNaN(wap))  b.waps.push(wap);
+      const way  = num(row[m.wayCol]);
+      const amt  = num(row[m.amtCol]);
+      const date = (row[m.dateCol] || '').trim();
+      if (!map[issuer]) map[issuer] = { dates:{}, totalAmt:0, allWays:[] };
+      if (!isNaN(amt)) map[issuer].totalAmt += amt;
+      if (!isNaN(way)) {
+        map[issuer].allWays.push(way);
+        if (date) {
+          if (!map[issuer].dates[date]) map[issuer].dates[date] = [];
+          map[issuer].dates[date].push(way);
+        }
+      }
     }
   }
   return map;
 }
 
-function avg(arr) { return arr.length ? arr.reduce((s,n)=>s+n,0)/arr.length : NaN; }
-function minOf(arr) { return arr.length ? Math.min(...arr) : NaN; }
-function maxOf(arr) { return arr.length ? Math.max(...arr) : NaN; }
-
-// Flatten map into table rows
-function buildTableRows(map) {
-  const rows = [];
-  for (const [issuer, instrMap] of Object.entries(map)) {
-    let totalAmt = 0, totalTrades = 0;
-    const instruments = [];
-    const allWays = [], allWaps = [];
-
-    for (const [instr, d] of Object.entries(instrMap)) {
-      totalAmt    += d.totalAmt;
-      totalTrades += d.trades;
-      instruments.push(instr);
-      allWays.push(...d.ways);
-      allWaps.push(...d.waps);
-    }
-
-    rows.push({
-      issuer,
-      instruments,
-      instrMap,
-      totalAmt,
-      totalTrades,
-      avgWay:  avg(allWays),
-      minWay:  minOf(allWays),
-      maxWay:  maxOf(allWays),
-      avgWap:  avg(allWaps),
-      instrCount: instruments.length,
-    });
+// Get all issuers from loaded data
+function allDataIssuers() {
+  const tabData = loadTabData();
+  const set = new Set();
+  for (const [instr, rows] of Object.entries(tabData)) {
+    if (!rows) continue;
+    const m = IMETA[instr];
+    if (!m) continue;
+    rows.forEach(r => { const v = (r[m.issuerCol]||'').trim(); if(v) set.add(v); });
   }
-  return rows;
+  return [...set].sort();
 }
 
-// ─── Render everything ───────────────────────────────────────
-function renderPage() {
-  tabData = loadTabData();
-  const hasAny = Object.values(tabData).some(r => r && r.length > 0);
-  const main = document.getElementById('main');
+// ─── WATCHLIST RENDER ─────────────────────────────────────────
+function renderWatchlist() {
+  const map   = buildIssuerDataMap();
+  const body  = document.getElementById('watchlist-body');
+  const hasData = Object.keys(map).length > 0;
 
-  if (!hasAny) {
-    main.innerHTML = `
-      <div class="no-data">
-        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.5" opacity=".4"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-        <h3>No data loaded yet</h3>
-        <p>Fetch data on the Data page first — select a date range, click Fetch Data on any instrument tab, then come back here.</p>
-        <a href="/index.html" class="accent-btn" style="text-decoration:none;padding:8px 20px">← Go to Data page</a>
-      </div>`;
+  if (watchlist.length === 0) {
+    body.innerHTML = `<div class="chart-empty" style="height:120px;padding:1rem">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity=".4"><path d="M12 5v14M5 12h14"/></svg>
+      <span>Add issuers below to track their yield movements.</span>
+    </div>`;
+    updateStatCards(map);
+    renderTrendChart();
     return;
   }
 
-  const issuerMap  = buildIssuerMap();
-  tableRows        = buildTableRows(issuerMap);
-  const totalIssuers = tableRows.length;
-  const grandAmt   = tableRows.reduce((s,r)=>s+r.totalAmt,0);
-  const grandTrades= tableRows.reduce((s,r)=>s+r.totalTrades,0);
-  const allWAYs    = tableRows.map(r=>r.avgWay).filter(n=>!isNaN(n));
-  const mktAvgWAY  = avg(allWAYs);
+  // Compute "previous" WAY for each issuer (2nd-latest date)
+  function prevWay(issuer) {
+    const d = map[issuer];
+    if (!d) return NaN;
+    const dates = Object.keys(d.dates).sort(parseDateSort);
+    if (dates.length < 2) return NaN;
+    const prev = d.dates[dates[dates.length - 2]];
+    return avg(prev);
+  }
+  function latestWay(issuer) {
+    const d = map[issuer];
+    if (!d || !d.allWays.length) return NaN;
+    const dates = Object.keys(d.dates).sort(parseDateSort);
+    if (!dates.length) return avg(d.allWays);
+    return avg(d.dates[dates[dates.length - 1]]);
+  }
 
-  // Top issuers by amount
-  const topN    = [...tableRows].sort((a,b)=>b.totalAmt-a.totalAmt).slice(0,15);
-  const top3    = topN.slice(0,3);
+  body.innerHTML = watchlist.map(w => {
+    const ind   = getIndustry(w.issuer);
+    const col   = indColor(ind);
+    const way   = latestWay(w.issuer);
+    const prev  = prevWay(w.issuer);
+    const diff  = (!isNaN(way) && !isNaN(prev)) ? ((way - prev) * 100).toFixed(1) : null;
+    const chgCls = diff === null ? '' : parseFloat(diff) > 0 ? 'chg-up' : parseFloat(diff) < 0 ? 'chg-dn' : 'chg-fl';
+    const chgTxt = diff === null ? (hasData ? '—' : 'no data') :
+      parseFloat(diff) > 0 ? `▲ ${diff}bps` : parseFloat(diff) < 0 ? `▼ ${Math.abs(diff)}bps` : '— flat';
 
-  main.innerHTML = `
-    <div class="page-header">
-      <div class="page-title">
-        <h2>Issuer Analytics</h2>
-        <p>Comparing yield & size across all fetched instruments</p>
-      </div>
-      <div class="header-controls">
-        <span class="filter-label">Show top</span>
-        <select class="select-input" id="top-n-sel" onchange="rebuildCharts()">
-          <option value="10">10 issuers</option>
-          <option value="15" selected>15 issuers</option>
-          <option value="20">20 issuers</option>
-          <option value="999">All issuers</option>
-        </select>
-        <button class="ghost-btn" onclick="renderPage()">↺ Refresh</button>
-      </div>
-    </div>
-
-    <!-- SUMMARY CARDS -->
-    <div class="summary-cards">
-      <div class="scard"><div class="scard-label">Issuers in view</div><div class="scard-value">${totalIssuers}</div><div class="scard-sub">across all instruments</div></div>
-      <div class="scard hi"><div class="scard-label">Grand total amount</div><div class="scard-value">${(grandAmt/1e7).toFixed(0)}</div><div class="scard-sub">₹ crores</div></div>
-      <div class="scard"><div class="scard-label">Total trades</div><div class="scard-value">${grandTrades.toLocaleString('en-IN')}</div><div class="scard-sub">across all instruments</div></div>
-      <div class="scard"><div class="scard-label">Market avg WAY</div><div class="scard-value">${fmt2(mktAvgWAY)}<span style="font-size:14px;color:var(--muted)">%</span></div><div class="scard-sub">weighted avg yield</div></div>
-      <div class="scard"><div class="scard-label">Top issuer</div><div class="scard-value" style="font-size:13px;line-height:1.4">${esc(top3[0]?.issuer||'—')}</div><div class="scard-sub">${fmtCr(top3[0]?.totalAmt||0)}</div></div>
-    </div>
-
-    <!-- CHARTS -->
-    <div class="chart-grid" id="chart-grid">
-      <div class="chart-card">
-        <div class="chart-header">
-          <div><div class="chart-title">Issuance Volume by Issuer</div><div class="chart-sub">Total ₹ amount · top N issuers</div></div>
+    return `<div class="wi" id="wi-${esc(w.issuer)}">
+      <div class="wi-left">
+        <div class="wi-name" title="${esc(w.issuer)}">${esc(w.issuer)}</div>
+        <div class="wi-meta">
+          <span class="ind-tag" style="background:${col.bg};color:${col.text};border-color:${col.text}33"
+            onclick="openIndModal('${esc(w.issuer)}')" title="Click to edit industry">${esc(ind)} ✎</span>
+          ${w.indOverride ? '<span style="font-size:10px;color:var(--muted)">custom</span>' : ''}
         </div>
-        <div class="chart-wrap tall"><canvas id="chart-volume"></canvas></div>
       </div>
-      <div class="chart-card">
-        <div class="chart-header">
-          <div><div class="chart-title">Weighted Avg Yield (WAY%)</div><div class="chart-sub">Avg WAY per issuer vs market average</div></div>
-        </div>
-        <div class="chart-wrap tall"><canvas id="chart-yield"></canvas></div>
+      <div class="wi-rate">
+        <div class="wi-way">${isNaN(way) ? '—' : way.toFixed(4) + '%'}</div>
+        <div class="wi-chg ${chgCls}">${chgTxt}</div>
       </div>
-      <div class="chart-card wide">
-        <div class="chart-header">
-          <div><div class="chart-title">Yield vs Volume — Issuer Bubble Chart</div><div class="chart-sub">Bubble size = trade count · X = WAY% · Y = total amount (₹ Cr)</div></div>
-          <div class="chart-legend" id="bubble-legend"></div>
-        </div>
-        <div class="chart-wrap scatter"><canvas id="chart-bubble"></canvas></div>
+      <div class="wi-actions">
+        <button class="wi-btn" onclick="removeIssuer('${esc(w.issuer)}')" title="Remove">✕</button>
       </div>
-      <div class="chart-card wide">
-        <div class="chart-header">
-          <div><div class="chart-title">Yield Range per Issuer</div><div class="chart-sub">Min → Max WAY% band · dot = average</div></div>
-        </div>
-        <div class="chart-wrap"><canvas id="chart-range"></canvas></div>
-      </div>
-    </div>
+    </div>`;
+  }).join('');
 
-    <!-- DETAIL TABLE -->
-    <div class="section-title">
-      Issuer Comparison Table
-      <span id="table-count"></span>
-    </div>
-    <div class="table-card">
-      <div class="table-controls">
-        <div class="search-wrap">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input class="search-input" id="tbl-search" type="text" placeholder="Search issuer…" oninput="onTableSearch()" autocomplete="off">
-        </div>
-        <span class="result-meta" id="tbl-meta"></span>
-      </div>
-      <div class="table-scroll">
-        <table>
-          <thead><tr>
-            <th style="width:32px">#</th>
-            <th onclick="tblSort(1)" id="th1">Issuer <span id="ts1"></span></th>
-            <th onclick="tblSort(2)" id="th2" class="r">Total Amt (₹ Cr) <span id="ts2">↓</span></th>
-            <th onclick="tblSort(3)" id="th3" class="r">Trades <span id="ts3"></span></th>
-            <th onclick="tblSort(4)" id="th4" class="r">Avg WAY% <span id="ts4"></span></th>
-            <th onclick="tblSort(5)" id="th5" class="r">Min WAY% <span id="ts5"></span></th>
-            <th onclick="tblSort(6)" id="th6" class="r">Max WAY% <span id="ts6"></span></th>
-            <th onclick="tblSort(7)" id="th7" class="r">Yield Spread <span id="ts7"></span></th>
-            <th onclick="tblSort(8)" id="th8" class="r">Avg WAP <span id="ts8"></span></th>
-            <th onclick="tblSort(9)" id="th9">Instruments <span id="ts9"></span></th>
-            <th onclick="tblSort(10)" id="th10" class="r">Vol Share% <span id="ts10"></span></th>
-          </tr></thead>
-          <tbody id="tbl-body"></tbody>
-        </table>
-      </div>
-    </div>
-
-    <div class="footer">
-      <span id="analysis-time"></span>
-      <span>Source: <a href="https://www.ftrac.co.in" target="_blank">CCIL F-TRAC ↗</a></span>
-    </div>
-  `;
-
-  document.getElementById('analysis-time').textContent =
-    'Analysed ' + new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-
-  rebuildCharts();
-  renderTable();
+  updateStatCards(map);
+  renderTrendChart();
+  renderThresholds();
+  checkAlerts();
+  renderIndustryTab();
+  renderHeatmap();
 }
 
-// ─── Charts ───────────────────────────────────────────────────
-function destroyCharts() {
-  chartObjs.forEach(c => { try { c.destroy(); } catch {} });
-  chartObjs = [];
+function updateStatCards(map) {
+  const watched = watchlist.map(w => w.issuer);
+  const myWays  = watched.flatMap(iss => map[iss]?.allWays || []).filter(n=>!isNaN(n));
+  const allWays = Object.values(map).flatMap(d=>d.allWays).filter(n=>!isNaN(n));
+  const inds    = new Set(watched.map(iss => getIndustry(iss)));
+
+  set('sc-count', watched.length);
+  set('sc-ind-count', `across ${inds.size} industr${inds.size===1?'y':'ies'}`);
+  set('sc-my-way', myWays.length ? avg(myWays).toFixed(2)+'%' : '—');
+  set('sc-mkt-way', allWays.length ? avg(allWays).toFixed(2)+'%' : '—');
+  set('sc-my-bps', myWays.length && allWays.length ?
+    `${((avg(myWays)-avg(allWays))*100).toFixed(1)}bps vs market` : 'vs all instruments');
+  set('sc-mkt-bps', 'all instruments · all issuers');
 }
 
-function rebuildCharts() {
-  destroyCharts();
-  const n    = parseInt(document.getElementById('top-n-sel')?.value || '15');
-  const topN = [...tableRows].sort((a,b) => b.totalAmt - a.totalAmt).slice(0, n);
+// ─── TREND CHART ─────────────────────────────────────────────
+function renderTrendChart() {
+  if (trendChart) { trendChart.destroy(); trendChart = null; }
+  const wrap = document.getElementById('trend-wrap');
+  const leg  = document.getElementById('trend-legend');
+  if (!wrap) return;
 
-  const labels  = topN.map(r => r.issuer.length > 22 ? r.issuer.slice(0,20)+'…' : r.issuer);
-  const amounts = topN.map(r => r.totalAmt / 1e7);
-  const ways    = topN.map(r => r.avgWay);
-  const grandAmt = tableRows.reduce((s,r)=>s+r.totalAmt,0);
+  const map     = buildIssuerDataMap();
+  const watched = watchlist.map(w=>w.issuer).filter(iss => map[iss]);
 
-  // Determine per-issuer dominant instrument for colour coding
-  const instrColors = topN.map(r => {
-    const sorted = Object.entries(r.instrMap).sort((a,b)=>b[1].totalAmt-a[1].totalAmt);
-    const dom = sorted[0]?.[0] || 'cp-primary';
-    if (dom.startsWith('cp')) return '#38bdf8';
-    return '#a78bfa';
+  if (!watched.length) {
+    wrap.innerHTML = `<div class="chart-empty">Add issuers to your watchlist to see yield trends.</div>`;
+    leg.innerHTML  = '';
+    return;
+  }
+
+  // Collect all dates across watched issuers, sorted
+  const dateSet = new Set();
+  watched.forEach(iss => Object.keys(map[iss]?.dates || {}).forEach(d => dateSet.add(d)));
+  const dates = [...dateSet].sort(parseDateSort);
+
+  if (!dates.length) {
+    wrap.innerHTML = `<div class="chart-empty">No date-indexed data found. Try fetching a wider date range.</div>`;
+    return;
+  }
+
+  // Also compute market avg per date across ALL issuers
+  const mktByDate = {};
+  dates.forEach(d => {
+    const vals = Object.values(map).flatMap(iss => iss.dates[d] || []).filter(n=>!isNaN(n));
+    if (vals.length) mktByDate[d] = avg(vals);
   });
 
-  // ── Chart 1: Volume horizontal bar ──
-  const mktAvgWAY = avg(tableRows.map(r=>r.avgWay).filter(n=>!isNaN(n)));
-  chartObjs.push(new Chart(document.getElementById('chart-volume'), {
-    type: 'bar',
-    data: {
-      labels,
-      datasets: [{
-        label: 'Total Amount (₹ Cr)',
-        data: amounts,
-        backgroundColor: instrColors.map(c => c+'99'),
-        borderColor: instrColors,
-        borderWidth: 1,
-        borderRadius: 4,
-      }]
-    },
-    options: {
-      indexAxis: 'y',
-      responsive: true, maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          callbacks: {
-            label: ctx => ` ₹ ${ctx.parsed.x.toFixed(2)} Cr`
-          }
-        }
-      },
-      scales: {
-        x: { grid:{ color:'#334155' }, ticks:{ callback: v=>'₹'+v+'Cr' } },
-        y: { grid:{ display:false }, ticks:{ font:{size:11} } },
-      }
-    }
+  wrap.innerHTML = '<canvas id="trend-canvas"></canvas>';
+  const ctx = document.getElementById('trend-canvas').getContext('2d');
+
+  const datasets = watched.map((iss, i) => ({
+    label: iss.length > 28 ? iss.slice(0,26)+'…' : iss,
+    data: dates.map(d => {
+      const vals = map[iss]?.dates[d];
+      return vals && vals.length ? parseFloat(avg(vals).toFixed(4)) : null;
+    }),
+    borderColor: IND_CHART_COLORS[i % IND_CHART_COLORS.length],
+    backgroundColor: 'transparent',
+    borderWidth: 2,
+    pointRadius: 3,
+    pointHoverRadius: 5,
+    tension: 0.3,
+    spanGaps: true,
   }));
 
-  // ── Chart 2: WAY bar with market avg reference line ──
-  chartObjs.push(new Chart(document.getElementById('chart-yield'), {
-    type: 'bar',
-    data: {
-      labels,
-      datasets: [
-        {
-          label: 'Avg WAY%',
-          data: ways,
-          backgroundColor: ways.map(w => w > mktAvgWAY ? 'rgba(248,113,113,.7)' : 'rgba(52,211,153,.7)'),
-          borderColor:      ways.map(w => w > mktAvgWAY ? '#f87171' : '#34d399'),
-          borderWidth: 1, borderRadius: 4,
-        },
-        {
-          type: 'line',
-          label: 'Market Avg WAY',
-          data: Array(labels.length).fill(mktAvgWAY),
-          borderColor: '#fbbf24',
-          borderDash: [4,4],
-          borderWidth: 1.5,
-          pointRadius: 0,
-          fill: false,
-        }
-      ]
-    },
-    options: {
-      indexAxis: 'y',
-      responsive: true, maintainAspectRatio: false,
-      plugins: {
-        legend: { position:'bottom', labels:{boxWidth:10,padding:14} },
-        tooltip: { callbacks:{ label: ctx => ` ${ctx.parsed.x?.toFixed(4)}%` } }
-      },
-      scales: {
-        x: { grid:{color:'#334155'}, ticks:{ callback: v=>v+'%' } },
-        y: { grid:{display:false}, ticks:{ font:{size:11} } },
-      }
-    }
-  }));
-
-  // ── Chart 3: Bubble (WAY vs Amount, size=trades) ──
-  const bubbleData = topN
-    .filter(r => !isNaN(r.avgWay) && !isNaN(r.totalAmt))
-    .map((r,i) => ({
-      x: parseFloat(r.avgWay.toFixed(4)),
-      y: parseFloat((r.totalAmt/1e7).toFixed(2)),
-      r: Math.max(5, Math.min(30, Math.sqrt(r.totalTrades) * 2.5)),
-      issuer: r.issuer,
-      trades: r.totalTrades,
-      instr:  Object.keys(r.instrMap).join(', '),
-    }));
-
-  // Split by CP vs CD
-  const cpBubbles = bubbleData.filter(d => {
-    const r = topN.find(t=>t.issuer===d.issuer);
-    return r && Object.keys(r.instrMap).some(k=>k.startsWith('cp'));
-  });
-  const cdBubbles = bubbleData.filter(d => {
-    const r = topN.find(t=>t.issuer===d.issuer);
-    return r && Object.keys(r.instrMap).every(k=>k.startsWith('cd'));
+  // Market avg as dashed gray
+  datasets.push({
+    label: 'Market avg',
+    data: dates.map(d => mktByDate[d] ? parseFloat(mktByDate[d].toFixed(4)) : null),
+    borderColor: '#475569',
+    backgroundColor: 'transparent',
+    borderWidth: 1,
+    borderDash: [4,4],
+    pointRadius: 0,
+    tension: 0.3,
+    spanGaps: true,
   });
 
-  // Legend
-  const legendEl = document.getElementById('bubble-legend');
-  if (legendEl) legendEl.innerHTML = `
-    <div class="legend-item"><div class="legend-dot" style="background:#38bdf8"></div>CP issuers</div>
-    <div class="legend-item"><div class="legend-dot" style="background:#a78bfa"></div>CD issuers</div>
-    <div class="legend-item" style="font-size:10px;color:var(--muted)">bubble size = trade count</div>`;
-
-  chartObjs.push(new Chart(document.getElementById('chart-bubble'), {
-    type: 'bubble',
-    data: {
-      datasets: [
-        { label:'CP', data:cpBubbles, backgroundColor:'rgba(56,189,248,.5)', borderColor:'#38bdf8', borderWidth:1 },
-        { label:'CD', data:cdBubbles, backgroundColor:'rgba(167,139,250,.5)', borderColor:'#a78bfa', borderWidth:1 },
-      ]
-    },
+  Chart.defaults.color = '#94a3b8';
+  Chart.defaults.borderColor = '#334155';
+  trendChart = new Chart(ctx, {
+    type: 'line',
+    data: { labels: dates.map(fmtDateLabel), datasets },
     options: {
       responsive: true, maintainAspectRatio: false,
+      interaction: { mode:'index', intersect:false },
       plugins: {
         legend: { display:false },
-        tooltip: {
-          callbacks: {
-            label: ctx => {
-              const d = ctx.raw;
-              return [`${d.issuer}`, `WAY: ${d.x}%`, `Amount: ₹${d.y} Cr`, `Trades: ${d.trades}`];
-            }
-          }
-        }
+        tooltip: { callbacks: { label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y?.toFixed(4)}%` } }
       },
       scales: {
-        x: { title:{display:true,text:'WAY%',color:'#94a3b8'}, grid:{color:'#334155'}, ticks:{callback:v=>v+'%'} },
-        y: { title:{display:true,text:'Amount (₹ Cr)',color:'#94a3b8'}, grid:{color:'#334155'}, ticks:{callback:v=>'₹'+v} },
+        x: { grid:{color:'#334155'}, ticks:{font:{size:10}, maxRotation:40} },
+        y: { grid:{color:'#334155'}, ticks:{callback:v=>v+'%', font:{size:10}} }
       }
     }
-  }));
-
-  // ── Chart 4: Yield range (float bar) ──
-  const rangeIssuers = topN.filter(r=>!isNaN(r.minWay)&&!isNaN(r.maxWay)).slice(0,12);
-  const rangeLabels  = rangeIssuers.map(r=>r.issuer.length>20?r.issuer.slice(0,18)+'…':r.issuer);
-  chartObjs.push(new Chart(document.getElementById('chart-range'), {
-    type: 'bar',
-    data: {
-      labels: rangeLabels,
-      datasets: [
-        {
-          label: 'Yield Range',
-          data: rangeIssuers.map(r => [parseFloat(r.minWay.toFixed(4)), parseFloat(r.maxWay.toFixed(4))]),
-          backgroundColor: 'rgba(56,189,248,.25)',
-          borderColor: '#38bdf8',
-          borderWidth: 1,
-          borderRadius: 2,
-          borderSkipped: false,
-        },
-        {
-          type: 'scatter',
-          label: 'Avg WAY%',
-          data: rangeIssuers.map((r,i) => ({ x: i, y: parseFloat(r.avgWay.toFixed(4)) })),
-          backgroundColor: '#fbbf24',
-          pointRadius: 5,
-          pointHoverRadius: 7,
-        }
-      ]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: {
-        legend: { position:'bottom', labels:{boxWidth:10,padding:14} },
-        tooltip: { callbacks:{
-          label: ctx => {
-            if (Array.isArray(ctx.parsed.y)) return `Range: ${ctx.parsed.y[0]}% → ${ctx.parsed.y[1]}%`;
-            return `Avg WAY: ${ctx.parsed.y?.toFixed?.(4)}%`;
-          }
-        }}
-      },
-      scales: {
-        x: { grid:{display:false}, ticks:{font:{size:10}} },
-        y: { grid:{color:'#334155'}, ticks:{callback:v=>v+'%'} }
-      }
-    }
-  }));
-}
-
-// ─── Detail Table ─────────────────────────────────────────────
-function renderTable() {
-  const grandAmt = tableRows.reduce((s,r)=>s+r.totalAmt,0);
-  let rows = [...tableRows];
-
-  // Search
-  if (searchQ) rows = rows.filter(r => r.issuer.toLowerCase().includes(searchQ));
-
-  // Sort
-  rows.sort((a,b) => {
-    let va, vb;
-    switch(sortCol) {
-      case 1:  va=a.issuer; vb=b.issuer; break;
-      case 2:  va=a.totalAmt; vb=b.totalAmt; break;
-      case 3:  va=a.totalTrades; vb=b.totalTrades; break;
-      case 4:  va=a.avgWay; vb=b.avgWay; break;
-      case 5:  va=a.minWay; vb=b.minWay; break;
-      case 6:  va=a.maxWay; vb=b.maxWay; break;
-      case 7:  va=a.maxWay-a.minWay; vb=b.maxWay-b.minWay; break;
-      case 8:  va=a.avgWap; vb=b.avgWap; break;
-      case 9:  va=a.instrCount; vb=b.instrCount; break;
-      case 10: va=a.totalAmt/grandAmt; vb=b.totalAmt/grandAmt; break;
-      default: va=a.totalAmt; vb=b.totalAmt;
-    }
-    if (typeof va==='string') return sortAsc ? va.localeCompare(vb) : vb.localeCompare(va);
-    return sortAsc ? va-vb : vb-va;
   });
 
-  // By-amt rank (for badges)
-  const rankMap = {};
-  [...tableRows].sort((a,b)=>b.totalAmt-a.totalAmt).forEach((r,i)=>rankMap[r.issuer]=i+1);
-
-  const maxAmt = Math.max(...tableRows.map(r=>r.totalAmt));
-  const tbody  = document.getElementById('tbl-body');
-  if (!tbody) return;
-
-  document.getElementById('tbl-meta').textContent =
-    searchQ ? `${rows.length} of ${tableRows.length}` : `${tableRows.length} issuers`;
-  document.getElementById('table-count').textContent =
-    `${rows.length} issuers`;
-
-  if (!rows.length) {
-    tbody.innerHTML = `<tr><td colspan="11" style="text-align:center;padding:2rem;color:var(--muted)">No issuers match "${esc(searchQ)}"</td></tr>`;
-    return;
-  }
-
-  tbody.innerHTML = rows.map((r, idx) => {
-    const rank     = rankMap[r.issuer];
-    const spread   = !isNaN(r.maxWay)&&!isNaN(r.minWay) ? r.maxWay-r.minWay : NaN;
-    const volShare = (r.totalAmt/grandAmt*100).toFixed(2);
-    const barW     = Math.round(r.totalAmt/maxAmt*120);
-
-    const instrTags = r.instruments.map(k => {
-      const m = INSTRUMENT_META[k];
-      return `<span class="instr-tag ${m.type}">${m.label.split(' ')[0]}</span><span class="instr-tag ${m.market}">${m.label.split(' ')[1]||''}</span>`;
-    }).join('');
-
-    return `<tr>
-      <td><div class="rank-badge ${rank<=3?'top3':''}">${rank}</div></td>
-      <td class="issuer-cell">${esc(r.issuer)}</td>
-      <td class="mono">
-        <div class="bar-cell">
-          <div class="mini-bar ${r.instruments.some(k=>k.startsWith('cd'))?'cd':''}" style="width:${barW}px"></div>
-          ${(r.totalAmt/1e7).toFixed(2)}
-        </div>
-      </td>
-      <td class="mono">${r.totalTrades.toLocaleString('en-IN')}</td>
-      <td class="mono">${fmt4(r.avgWay)}</td>
-      <td class="mono">${fmt4(r.minWay)}</td>
-      <td class="mono">${fmt4(r.maxWay)}</td>
-      <td class="mono" style="color:${!isNaN(spread)&&spread>0.5?'var(--warn)':'var(--muted)'}">${fmt4(spread)}</td>
-      <td class="mono">${fmt4(r.avgWap)}</td>
-      <td style="min-width:120px">${instrTags}</td>
-      <td class="mono">${volShare}%</td>
-    </tr>`;
+  // Build legend
+  leg.innerHTML = [...watched, 'Market avg'].map((name,i) => {
+    const col = i < watched.length ? IND_CHART_COLORS[i % IND_CHART_COLORS.length] : '#475569';
+    const short = name.length > 26 ? name.slice(0,24)+'…' : name;
+    return `<div class="leg-item"><div class="leg-dot" style="background:${col}"></div>${esc(short)}</div>`;
   }).join('');
 }
 
-function tblSort(col) {
-  if (sortCol===col) sortAsc=!sortAsc; else { sortCol=col; sortAsc=col===1; }
-  for(let i=1;i<=10;i++){
-    const th=document.getElementById('th'+i);
-    const s=document.getElementById('ts'+i);
-    if(th) th.classList.toggle('sorted',i===col);
-    if(s)  s.textContent = i===col ? (sortAsc?'↑':'↓') : '';
+// ─── INDUSTRY TAB ─────────────────────────────────────────────
+function renderIndustryTab() {
+  const map     = buildIssuerDataMap();
+  const watched = watchlist.map(w=>w.issuer);
+  const barsEl  = document.getElementById('industry-bars');
+  if (!barsEl) return;
+
+  // Aggregate by industry across ALL data (not just watchlist) for context,
+  // but highlight watched ones
+  const indMap = {};
+  for (const [issuer, d] of Object.entries(map)) {
+    const ind = getIndustry(issuer);
+    if (!indMap[ind]) indMap[ind] = { ways:[], count:0, issuers:[] };
+    indMap[ind].ways.push(...d.allWays.filter(n=>!isNaN(n)));
+    indMap[ind].count++;
+    indMap[ind].issuers.push(issuer);
   }
-  renderTable();
+
+  const sorted = Object.entries(indMap)
+    .map(([ind,d]) => ({ ind, way:avg(d.ways), count:d.count, issuers:d.issuers }))
+    .filter(r => !isNaN(r.way))
+    .sort((a,b) => b.way - a.way);
+
+  if (!sorted.length) {
+    barsEl.innerHTML = `<div class="chart-empty" style="height:80px">Fetch data on the Data page first.</div>`;
+    return;
+  }
+
+  const maxWay = Math.max(...sorted.map(r=>r.way));
+  const col9  = IND_CHART_COLORS;
+
+  barsEl.innerHTML = sorted.map((r,i) => {
+    const col   = indColor(r.ind);
+    const barPct = Math.round(r.way / maxWay * 100);
+    const isWatched = r.issuers.some(iss => watched.includes(iss));
+    return `<div class="ind-row" ${isWatched ? 'style="background:rgba(56,189,248,.04);border-radius:6px;padding:8px 6px;"' : ''}>
+      <div class="ind-name" style="color:${col.text}">${esc(r.ind)} ${isWatched ? '★' : ''}</div>
+      <div class="ind-bar-wrap"><div class="ind-bar" style="width:${barPct}%;background:${col.text}"></div></div>
+      <div class="ind-way">${r.way.toFixed(2)}%</div>
+      <div class="ind-count" style="color:var(--muted)">${r.count} issuer${r.count!==1?'s':''}</div>
+    </div>`;
+  }).join('');
 }
 
-function onTableSearch() {
-  searchQ = (document.getElementById('tbl-search')?.value||'').trim().toLowerCase();
-  renderTable();
+function renderHeatmap() {
+  const map    = buildIssuerDataMap();
+  const el     = document.getElementById('heatmap-wrap');
+  if (!el) return;
+
+  const watched = watchlist.map(w=>w.issuer).filter(iss => map[iss]);
+  if (!watched.length) {
+    el.innerHTML = `<div class="chart-empty" style="height:80px">Add issuers to your watchlist.</div>`;
+    return;
+  }
+
+  // Collect last 7 dates across watched issuers
+  const dateSet = new Set();
+  watched.forEach(iss => Object.keys(map[iss]?.dates||{}).forEach(d=>dateSet.add(d)));
+  const dates = [...dateSet].sort(parseDateSort).slice(-7);
+
+  if (!dates.length) {
+    el.innerHTML = `<div class="chart-empty" style="height:80px">No dated records found.</div>`;
+    return;
+  }
+
+  // Compute global min/max for colour scaling
+  const allVals = watched.flatMap(iss => dates.flatMap(d => map[iss]?.dates[d]||[])).filter(n=>!isNaN(n));
+  const minV = Math.min(...allVals), maxV = Math.max(...allVals);
+
+  function heatColor(v) {
+    if (isNaN(v)) return { bg:'var(--surface2)', text:'var(--muted)' };
+    const t = maxV===minV ? 0.5 : (v-minV)/(maxV-minV);
+    // Green (low) → Amber → Red (high)
+    if (t < 0.33) return { bg:'rgba(52,211,153,.2)',  text:'#34d399' };
+    if (t < 0.55) return { bg:'rgba(148,163,184,.2)', text:'#94a3b8' };
+    if (t < 0.75) return { bg:'rgba(251,191,36,.2)',  text:'#fbbf24' };
+    if (t < 0.88) return { bg:'rgba(251,146,60,.2)',  text:'#fb923c' };
+    return { bg:'rgba(248,113,113,.25)', text:'#f87171' };
+  }
+
+  const cols  = 1 + dates.length;
+  const grid  = `grid-template-columns: 130px repeat(${dates.length}, 1fr)`;
+
+  let html = `<div class="hm-grid" style="${grid}">`;
+  html += `<div class="hm-header"></div>` + dates.map(d=>`<div class="hm-header">${fmtDateLabel(d)}</div>`).join('');
+  watched.forEach(iss => {
+    html += `<div class="hm-label" title="${esc(iss)}">${esc(iss.length>18?iss.slice(0,16)+'…':iss)}</div>`;
+    dates.forEach(d => {
+      const vals = map[iss]?.dates[d];
+      const v    = vals && vals.length ? avg(vals) : NaN;
+      const c    = heatColor(v);
+      html += `<div class="hm-cell" style="background:${c.bg};color:${c.text}">${isNaN(v)?'—':v.toFixed(2)}</div>`;
+    });
+  });
+  html += '</div>';
+  el.innerHTML = html;
 }
 
-// ─── Init ─────────────────────────────────────────────────────
-renderPage();
+// ─── ALERTS ───────────────────────────────────────────────────
+function renderThresholds() {
+  const el = document.getElementById('threshold-list');
+  if (!el) return;
+  if (!watchlist.length) {
+    el.innerHTML = `<div style="font-size:12px;color:var(--muted);padding:.5rem 0">Add issuers to watchlist first.</div>`;
+    return;
+  }
+  el.innerHTML = watchlist.map(w => {
+    const thr   = thresholds[w.issuer] || {};
+    const short = w.issuer.length > 24 ? w.issuer.slice(0,22)+'…' : w.issuer;
+    return `<div class="threshold-row">
+      <div class="thr-name" title="${esc(w.issuer)}">${esc(short)}</div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <span class="thr-label">Alert above</span>
+        <input class="thr-input" type="number" step="0.01" value="${thr.above||''}"
+          placeholder="e.g. 7.50" onchange="saveThrValue('${esc(w.issuer)}','above',this.value)">
+        <span class="thr-label">%</span>
+      </div>
+    </div>`;
+  }).join('');
+}
 
-// Re-render if data updates in another tab
+function saveThrValue(issuer, key, val) {
+  if (!thresholds[issuer]) thresholds[issuer] = {};
+  thresholds[issuer][key] = val ? parseFloat(val) : null;
+  saveThr(thresholds);
+  checkAlerts();
+}
+
+function checkAlerts() {
+  const map = buildIssuerDataMap();
+  const el  = document.getElementById('alert-list');
+  if (!el) return;
+
+  const alerts = [];
+
+  watchlist.forEach(w => {
+    const iss  = w.issuer;
+    const d    = map[iss];
+    const thr  = thresholds[iss];
+    if (!d || !thr) return;
+
+    const dates   = Object.keys(d.dates).sort(parseDateSort);
+    if (!dates.length) return;
+    const latest  = avg(d.dates[dates[dates.length-1]]);
+    const prev    = dates.length > 1 ? avg(d.dates[dates[dates.length-2]]) : NaN;
+    const latestDate = dates[dates.length-1];
+
+    if (thr.above && !isNaN(latest) && latest > thr.above) {
+      const crossed = !isNaN(prev) && prev <= thr.above;
+      alerts.push({
+        issuer: iss,
+        type: 'above',
+        color: '#f87171',
+        title: `${iss} WAY above ${thr.above}% threshold`,
+        sub: `Current WAY: ${latest.toFixed(4)}%${crossed ? ` (crossed from ${prev.toFixed(4)}%)` : ''} · ${latestDate}`,
+        date: latestDate,
+      });
+    }
+  });
+
+  // New issuance alerts (issuers in watchlist with data today or latest date)
+  const allDates = [...new Set(Object.values(map).flatMap(d=>Object.keys(d.dates)))].sort(parseDateSort);
+  const latestDate = allDates[allDates.length - 1];
+  if (latestDate) {
+    watchlist.forEach(w => {
+      const d = map[w.issuer];
+      if (d && d.dates[latestDate]) {
+        const way = avg(d.dates[latestDate]);
+        const amt = d.totalAmt;
+        alerts.push({
+          issuer: w.issuer,
+          type: 'issuance',
+          color: '#38bdf8',
+          title: `New issuance detected — ${w.issuer}`,
+          sub: `${isNaN(way)?'':('WAY '+way.toFixed(4)+'%')} · ${isNaN(amt)?'':fmtCr(amt)} · ${latestDate}`,
+          date: latestDate,
+        });
+      }
+    });
+  }
+
+  if (!alerts.length) {
+    el.innerHTML = `<div style="font-size:12px;color:var(--muted);padding:1rem 0;text-align:center">
+      No alerts triggered. Set thresholds on the left to get notified when yields cross your limits.
+    </div>`;
+    return;
+  }
+
+  el.innerHTML = alerts.map(a => `
+    <div class="alert-item">
+      <div class="alert-dot" style="background:${a.color}"></div>
+      <div class="alert-body">
+        <div class="alert-title">${esc(a.title)}</div>
+        <div class="alert-sub">${esc(a.sub)}</div>
+      </div>
+      <div class="alert-time">${esc(a.date)}</div>
+    </div>`).join('');
+}
+
+// ─── WATCHLIST MANAGEMENT ────────────────────────────────────
+function removeIssuer(issuer) {
+  watchlist = watchlist.filter(w => w.issuer !== issuer);
+  saveWL(watchlist);
+  renderWatchlist();
+}
+
+function addIssuerFromInput() {
+  const input = document.getElementById('add-input');
+  const val   = input.value.trim();
+  if (!val) return;
+  addIssuer(val);
+  input.value = '';
+  document.getElementById('ac-list').style.display = 'none';
+}
+
+function addIssuer(name) {
+  if (watchlist.find(w => w.issuer === name)) return;
+  watchlist.push({ issuer: name, indOverride: null });
+  saveWL(watchlist);
+  renderWatchlist();
+}
+
+// ─── AUTOCOMPLETE ─────────────────────────────────────────────
+function onAddInput() {
+  const q    = document.getElementById('add-input').value.trim().toLowerCase();
+  const list = document.getElementById('ac-list');
+  if (!q || q.length < 2) { list.style.display='none'; return; }
+
+  const all = allDataIssuers().filter(iss =>
+    iss.toLowerCase().includes(q) && !watchlist.find(w=>w.issuer===iss)
+  ).slice(0, 8);
+
+  if (!all.length) { list.style.display='none'; return; }
+
+  list.innerHTML = all.map(iss =>
+    `<div class="ac-item" onclick="selectAc('${esc(iss)}')">
+      ${esc(iss)}
+      <small>${detectIndustry(iss)}</small>
+    </div>`
+  ).join('');
+  list.style.display = 'block';
+}
+
+function selectAc(name) {
+  document.getElementById('add-input').value = name;
+  document.getElementById('ac-list').style.display = 'none';
+  addIssuer(name);
+  document.getElementById('add-input').value = '';
+}
+
+function onAddKey(e) {
+  if (e.key === 'Enter') addIssuerFromInput();
+  if (e.key === 'Escape') document.getElementById('ac-list').style.display='none';
+}
+document.addEventListener('click', e => {
+  if (!e.target.closest('.ac-wrap')) document.getElementById('ac-list').style.display='none';
+});
+
+// ─── INDUSTRY MODAL ───────────────────────────────────────────
+function openIndModal(issuer) {
+  editingIssuer = issuer;
+  document.getElementById('ind-modal').style.display = 'flex';
+  document.getElementById('ind-modal-issuer').textContent = issuer;
+  document.getElementById('ind-modal-auto').textContent = detectIndustry(issuer);
+  const item = watchlist.find(w=>w.issuer===issuer);
+  document.getElementById('ind-modal-input').value = (item && item.indOverride) ? item.indOverride : '';
+  // Populate datalist with known industries
+  const known = [...new Set([...Object.keys(IND_COLORS), ...watchlist.map(w=>getIndustry(w.issuer))])];
+  document.getElementById('ind-suggestions').innerHTML = known.map(i=>`<option value="${esc(i)}">`).join('');
+  setTimeout(() => document.getElementById('ind-modal-input').focus(), 50);
+}
+
+function closeIndModal(e) {
+  if (e && e.target !== document.getElementById('ind-modal')) return;
+  document.getElementById('ind-modal').style.display = 'none';
+  editingIssuer = null;
+}
+document.getElementById('ind-modal').addEventListener('keydown', e => { if(e.key==='Escape') { document.getElementById('ind-modal').style.display='none'; editingIssuer=null; }});
+
+function saveIndTag() {
+  if (!editingIssuer) return;
+  const val  = document.getElementById('ind-modal-input').value.trim();
+  const item = watchlist.find(w=>w.issuer===editingIssuer);
+  if (item) item.indOverride = val || null;
+  saveWL(watchlist);
+  document.getElementById('ind-modal').style.display = 'none';
+  editingIssuer = null;
+  renderWatchlist();
+}
+
+// ─── TABS ─────────────────────────────────────────────────────
+function showTab(name, btn) {
+  document.querySelectorAll('.ptab').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-'+name).classList.add('active');
+  if (name==='industry') { renderIndustryTab(); renderHeatmap(); }
+  if (name==='alerts')   { renderThresholds(); checkAlerts(); }
+}
+
+// ─── UTILS ────────────────────────────────────────────────────
+function num(v) { return parseFloat(String(v||'').replace(/,/g,'')); }
+function avg(arr) { return arr.length ? arr.reduce((s,n)=>s+n,0)/arr.length : NaN; }
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function set(id,v) { const el=document.getElementById(id); if(el) el.textContent=v; }
+function fmtCr(n) { return isNaN(n)?'—':'₹ '+(n/1e7).toFixed(2)+' Cr'; }
+
+// Parses DD/MM/YYYY, DD-MM-YYYY, DD-Mon-YYYY → sortable string YYYYMMDD
+function parseDateSort(d) {
+  if (!d) return '';
+  const MONTHS = {jan:'01',feb:'02',mar:'03',apr:'04',may:'05',jun:'06',jul:'07',aug:'08',sep:'09',oct:'10',nov:'11',dec:'12'};
+  let m;
+  if ((m = d.match(/^(\d{2})[\/\-](\d{2})[\/\-](\d{4})$/))) return `${m[3]}${m[2]}${m[1]}`;
+  if ((m = d.match(/^(\d{2})-([A-Za-z]{3})-(\d{4})$/))) return `${m[3]}${MONTHS[m[2].toLowerCase()]||'00'}${m[1]}`;
+  if ((m = d.match(/^(\d{4})-(\d{2})-(\d{2})$/))) return `${m[1]}${m[2]}${m[3]}`;
+  return d;
+}
+
+function fmtDateLabel(d) {
+  const MONTHS = {jan:'Jan',feb:'Feb',mar:'Mar',apr:'Apr',may:'May',jun:'Jun',jul:'Jul',aug:'Aug',sep:'Sep',oct:'Oct',nov:'Nov',dec:'Dec'};
+  let m;
+  if ((m = d.match(/^(\d{2})[\/\-](\d{2})[\/\-](\d{4})$/))) return `${m[1]}/${m[2]}`;
+  if ((m = d.match(/^(\d{2})-([A-Za-z]{3})-(\d{4})$/))) return `${m[1]}-${MONTHS[m[2].toLowerCase()]||m[2]}`;
+  return d;
+}
+
+// ─── BOOT ─────────────────────────────────────────────────────
+Chart.defaults.color      = '#94a3b8';
+Chart.defaults.borderColor = '#334155';
+Chart.defaults.font.family = "'DM Sans', system-ui, sans-serif";
+
+document.getElementById('footer-time').textContent =
+  'Analysed ' + new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+
+renderWatchlist();
+
 window.addEventListener('storage', e => {
-  if (e.key === 'ftrac_tabdata') renderPage();
+  if (e.key === 'ftrac_tabdata') { renderWatchlist(); }
 });
 </script>
 </body>
