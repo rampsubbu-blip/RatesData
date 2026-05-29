@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0f172a">
+<title>FTRAC · Issuer Analytics</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='16' fill='%230f172a'/><text y='68' x='12' font-size='60' font-family='monospace' fill='%2338bdf8'>F</text></svg>">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg:#0f172a; --surface:#1e293b; --surface2:#263248; --surface3:#1a2744;
+  --border:#334155; --border2:#475569;
+  --text:#f1f5f9; --muted:#94a3b8;
+  --accent:#38bdf8; --accent-dim:rgba(56,189,248,.12);
+  --success:#34d399; --warn:#fbbf24; --danger:#f87171;
+  --purple:#a78bfa; --orange:#fb923c; --pink:#f472b6; --teal:#2dd4bf;
+  --font:'DM Mono','Fira Code',monospace;
+  --sans:'DM Sans',system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh;font-size:14px;}
+
+/* HEADER */
+header{background:rgba(30,41,59,.96);backdrop-filter:blur(8px);border-bottom:1px solid var(--border);
+  padding:0 1.5rem;height:56px;display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:100;}
+.logo{display:flex;align-items:center;gap:10px;}
+.logo-badge{background:var(--accent);color:#0c1a2e;font-family:var(--font);font-size:11px;font-weight:500;
+  padding:3px 9px;border-radius:5px;letter-spacing:.06em;}
+.logo-text .title{font-size:14px;font-weight:600;}
+.logo-text .sub{font-size:11px;color:var(--muted);}
+.nav-links{display:flex;gap:4px;}
+.nav-link{padding:6px 14px;border-radius:7px;font-size:13px;font-weight:500;cursor:pointer;
+  border:none;background:transparent;color:var(--muted);text-decoration:none;transition:all .15s;
+  display:flex;align-items:center;gap:6px;}
+.nav-link:hover{color:var(--text);background:var(--surface2);}
+.nav-link.active{background:var(--surface2);color:var(--accent);}
+
+main{max-width:1440px;margin:0 auto;padding:1.25rem 1.5rem;}
+
+/* PAGE TITLE + CONTROLS */
+.page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:12px;}
+.page-title h2{font-size:18px;font-weight:600;letter-spacing:-.01em;}
+.page-title p{font-size:12px;color:var(--muted);margin-top:3px;}
+.header-controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.filter-label{font-size:11px;color:var(--muted);}
+.select-input{background:var(--surface2);border:1px solid var(--border);border-radius:7px;
+  padding:6px 10px;color:var(--text);font-size:12px;font-family:var(--sans);outline:none;cursor:pointer;}
+.select-input:focus{border-color:var(--accent);}
+.ghost-btn{background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:7px;
+  padding:6px 14px;font-size:12px;cursor:pointer;font-family:var(--sans);transition:all .15s;}
+.ghost-btn:hover{border-color:var(--border2);color:var(--text);}
+.accent-btn{background:var(--accent);color:#0c1a2e;border:none;border-radius:7px;
+  padding:6px 16px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:opacity .15s;}
+.accent-btn:hover{opacity:.88;}
+
+/* NO DATA STATE */
+.no-data{background:var(--surface);border:1px solid var(--border);border-radius:12px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:4rem 2rem;gap:14px;text-align:center;}
+.no-data h3{font-size:15px;font-weight:600;}
+.no-data p{font-size:13px;color:var(--muted);max-width:360px;line-height:1.6;}
+
+/* SUMMARY CARDS */
+.summary-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:1.5rem;}
+.scard{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:.85rem 1rem;}
+.scard.hi{border-color:rgba(56,189,248,.3);}
+.scard-label{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:5px;}
+.scard-value{font-family:var(--font);font-size:20px;font-weight:500;}
+.scard.hi .scard-value{color:var(--accent);}
+.scard-sub{font-size:10px;color:var(--muted);margin-top:2px;}
+
+/* CHART GRID */
+.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:1.5rem;}
+@media(max-width:900px){.chart-grid{grid-template-columns:1fr;}}
+.chart-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.1rem;}
+.chart-card.wide{grid-column:1/-1;}
+.chart-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;}
+.chart-title{font-size:13px;font-weight:600;}
+.chart-sub{font-size:11px;color:var(--muted);margin-top:2px;}
+.chart-legend{display:flex;gap:12px;flex-wrap:wrap;}
+.legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted);}
+.legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.chart-wrap{position:relative;height:280px;}
+.chart-wrap.tall{height:360px;}
+.chart-wrap.scatter{height:320px;}
+
+/* ISSUER TABLE */
+.section-title{font-size:13px;font-weight:600;margin-bottom:.85rem;display:flex;align-items:center;gap:8px;}
+.section-title span{font-size:11px;color:var(--muted);font-weight:400;}
+.table-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:1.5rem;}
+.table-controls{display:flex;align-items:center;gap:10px;padding:.7rem 1rem;
+  border-bottom:1px solid var(--border);background:var(--surface2);flex-wrap:wrap;}
+.search-wrap{position:relative;flex:1;min-width:160px;max-width:340px;}
+.search-wrap svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none;}
+.search-input{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:7px;
+  padding:7px 11px 7px 32px;color:var(--text);font-size:13px;font-family:var(--sans);outline:none;transition:border-color .15s;}
+.search-input:focus{border-color:var(--accent);}
+.search-input::placeholder{color:var(--muted);}
+.result-meta{font-size:12px;color:var(--muted);margin-left:auto;}
+.table-scroll{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:13px;white-space:nowrap;}
+thead{background:var(--surface2);border-bottom:1px solid var(--border);}
+th{padding:9px 14px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.07em;
+  color:var(--muted);font-weight:500;cursor:pointer;user-select:none;}
+th:hover{color:var(--text);}
+th.sorted{color:var(--accent);}
+th.r{text-align:right;}
+td{padding:8px 14px;border-bottom:1px solid rgba(51,65,85,.5);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:rgba(56,189,248,.03);}
+td.issuer-cell{font-weight:500;min-width:180px;max-width:280px;white-space:normal;line-height:1.4;}
+td.mono{font-family:var(--font);font-size:12px;text-align:right;}
+td.r{text-align:right;}
+.instr-tag{display:inline-flex;align-items:center;gap:4px;font-size:10px;padding:2px 7px;
+  border-radius:20px;font-weight:600;margin:1px 2px;}
+.instr-tag.cp{background:rgba(56,189,248,.15);color:var(--accent);}
+.instr-tag.cd{background:rgba(167,139,250,.15);color:var(--purple);}
+.instr-tag.pri{border:1px solid rgba(52,211,153,.3);color:var(--success);}
+.instr-tag.sec{border:1px solid rgba(251,191,36,.3);color:var(--warn);}
+.bar-cell{display:flex;align-items:center;gap:8px;}
+.mini-bar{height:6px;border-radius:3px;background:var(--accent);min-width:2px;flex-shrink:0;}
+.mini-bar.cd{background:var(--purple);}
+.rank-badge{width:20px;height:20px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;font-size:10px;font-family:var(--font);color:var(--muted);flex-shrink:0;}
+.rank-badge.top3{background:rgba(251,191,36,.15);border-color:rgba(251,191,36,.3);color:var(--warn);}
+.change-up{color:var(--success);}
+.change-dn{color:var(--danger);}
+
+/* YIELD HEATMAP */
+.heatmap-grid{display:grid;gap:4px;margin-top:.5rem;}
+.heatmap-row{display:flex;gap:4px;align-items:center;}
+.heatmap-label{font-size:11px;color:var(--muted);width:160px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.heatmap-cell{height:24px;border-radius:4px;flex:1;display:flex;align-items:center;justify-content:center;
+  font-size:10px;font-family:var(--font);font-weight:500;min-width:40px;}
+
+/* FOOTER */
+.footer{display:flex;justify-content:space-between;align-items:center;margin-top:1rem;
+  font-size:11px;color:var(--border2);flex-wrap:wrap;gap:6px;}
+.footer a{color:var(--border2);text-decoration:none;}
+.footer a:hover{color:var(--accent);}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <span class="logo-badge">FTRAC</span>
+    <div class="logo-text">
+      <div class="title">Money Market Data</div>
+      <div class="sub">CCIL F-TRAC Platform</div>
+    </div>
+  </div>
+  <nav class="nav-links">
+    <a class="nav-link" href="/index.html">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      Data
+    </a>
+    <a class="nav-link active" href="/analytics.html">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      Analytics
+    </a>
+  </nav>
+</header>
+
+<main id="main">
+  <!-- Rendered by JS -->
+</main>
+
+<script>
+// ─── Palette ─────────────────────────────────────────────────
+const COLORS = ['#38bdf8','#a78bfa','#34d399','#fb923c','#f472b6','#fbbf24','#2dd4bf','#818cf8','#4ade80','#f87171','#60a5fa','#c084fc'];
+
+const INSTRUMENT_META = {
+  'cp-primary':   { label:'CP Pri', type:'cp', market:'pri', issuerCol:3, amtCol:7,  wayCol:13, wapCol:12 },
+  'cp-secondary': { label:'CP Sec', type:'cp', market:'sec', issuerCol:3, amtCol:7,  wayCol:13, wapCol:12 },
+  'cd-primary':   { label:'CD Pri', type:'cd', market:'pri', issuerCol:3, amtCol:7,  wayCol:13, wapCol:12 },
+  'cd-secondary': { label:'CD Sec', type:'cd', market:'sec', issuerCol:2, amtCol:6,  wayCol:12, wapCol:11 },
+};
+
+// Chart.js global defaults
+Chart.defaults.color = '#94a3b8';
+Chart.defaults.borderColor = '#334155';
+Chart.defaults.font.family = "'DM Sans', system-ui, sans-serif";
+Chart.defaults.font.size   = 12;
+
+// ─── Load data from sessionStorage (written by index.html) ───
+function loadTabData() {
+  try { return JSON.parse(sessionStorage.getItem('ftrac_tabdata') || '{}'); } catch { return {}; }
+}
+
+let tabData    = loadTabData();
+let chartObjs  = [];
+let tableRows  = [];
+let sortCol    = 0;
+let sortAsc    = false; // default: sort by total amount desc
+let searchQ    = '';
+
+// ─── Helpers ─────────────────────────────────────────────────
+function num(v)   { return parseFloat(String(v||'').replace(/,/g,'')); }
+function esc(s)   { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function fmt2(n)  { return isNaN(n) ? '—' : n.toFixed(2); }
+function fmt4(n)  { return isNaN(n) ? '—' : n.toFixed(4); }
+function fmtCr(n) { return isNaN(n) ? '—' : '₹ '+(n/1e7).toFixed(2)+' Cr'; }
+function fmtINR(n){ return isNaN(n) ? '—' : n.toLocaleString('en-IN', {maximumFractionDigits:2}); }
+
+// ─── Build issuer aggregates ─────────────────────────────────
+function buildIssuerMap() {
+  // issuerMap[issuerName][instrument] = { trades, totalAmt, ways[], waps[] }
+  const map = {};
+
+  for (const [instrument, rows] of Object.entries(tabData)) {
+    if (!rows || !rows.length) continue;
+    const meta = INSTRUMENT_META[instrument];
+    if (!meta) continue;
+
+    for (const row of rows) {
+      const issuer = (row[meta.issuerCol] || '').trim();
+      if (!issuer) continue;
+      const amt  = num(row[meta.amtCol]);
+      const way  = num(row[meta.wayCol]);
+      const wap  = num(row[meta.wapCol]);
+      const trds = num(row[6] || row[5] || '1');
+
+      if (!map[issuer]) map[issuer] = {};
+      if (!map[issuer][instrument]) map[issuer][instrument] = { trades:0, totalAmt:0, ways:[], waps:[] };
+
+      const b = map[issuer][instrument];
+      if (!isNaN(trds)) b.trades  += trds;
+      if (!isNaN(amt))  b.totalAmt += amt;
+      if (!isNaN(way))  b.ways.push(way);
+      if (!isNaN(wap))  b.waps.push(wap);
+    }
+  }
+  return map;
+}
+
+function avg(arr) { return arr.length ? arr.reduce((s,n)=>s+n,0)/arr.length : NaN; }
+function minOf(arr) { return arr.length ? Math.min(...arr) : NaN; }
+function maxOf(arr) { return arr.length ? Math.max(...arr) : NaN; }
+
+// Flatten map into table rows
+function buildTableRows(map) {
+  const rows = [];
+  for (const [issuer, instrMap] of Object.entries(map)) {
+    let totalAmt = 0, totalTrades = 0;
+    const instruments = [];
+    const allWays = [], allWaps = [];
+
+    for (const [instr, d] of Object.entries(instrMap)) {
+      totalAmt    += d.totalAmt;
+      totalTrades += d.trades;
+      instruments.push(instr);
+      allWays.push(...d.ways);
+      allWaps.push(...d.waps);
+    }
+
+    rows.push({
+      issuer,
+      instruments,
+      instrMap,
+      totalAmt,
+      totalTrades,
+      avgWay:  avg(allWays),
+      minWay:  minOf(allWays),
+      maxWay:  maxOf(allWays),
+      avgWap:  avg(allWaps),
+      instrCount: instruments.length,
+    });
+  }
+  return rows;
+}
+
+// ─── Render everything ───────────────────────────────────────
+function renderPage() {
+  tabData = loadTabData();
+  const hasAny = Object.values(tabData).some(r => r && r.length > 0);
+  const main = document.getElementById('main');
+
+  if (!hasAny) {
+    main.innerHTML = `
+      <div class="no-data">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.5" opacity=".4"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        <h3>No data loaded yet</h3>
+        <p>Fetch data on the Data page first — select a date range, click Fetch Data on any instrument tab, then come back here.</p>
+        <a href="/index.html" class="accent-btn" style="text-decoration:none;padding:8px 20px">← Go to Data page</a>
+      </div>`;
+    return;
+  }
+
+  const issuerMap  = buildIssuerMap();
+  tableRows        = buildTableRows(issuerMap);
+  const totalIssuers = tableRows.length;
+  const grandAmt   = tableRows.reduce((s,r)=>s+r.totalAmt,0);
+  const grandTrades= tableRows.reduce((s,r)=>s+r.totalTrades,0);
+  const allWAYs    = tableRows.map(r=>r.avgWay).filter(n=>!isNaN(n));
+  const mktAvgWAY  = avg(allWAYs);
+
+  // Top issuers by amount
+  const topN    = [...tableRows].sort((a,b)=>b.totalAmt-a.totalAmt).slice(0,15);
+  const top3    = topN.slice(0,3);
+
+  main.innerHTML = `
+    <div class="page-header">
+      <div class="page-title">
+        <h2>Issuer Analytics</h2>
+        <p>Comparing yield & size across all fetched instruments</p>
+      </div>
+      <div class="header-controls">
+        <span class="filter-label">Show top</span>
+        <select class="select-input" id="top-n-sel" onchange="rebuildCharts()">
+          <option value="10">10 issuers</option>
+          <option value="15" selected>15 issuers</option>
+          <option value="20">20 issuers</option>
+          <option value="999">All issuers</option>
+        </select>
+        <button class="ghost-btn" onclick="renderPage()">↺ Refresh</button>
+      </div>
+    </div>
+
+    <!-- SUMMARY CARDS -->
+    <div class="summary-cards">
+      <div class="scard"><div class="scard-label">Issuers in view</div><div class="scard-value">${totalIssuers}</div><div class="scard-sub">across all instruments</div></div>
+      <div class="scard hi"><div class="scard-label">Grand total amount</div><div class="scard-value">${(grandAmt/1e7).toFixed(0)}</div><div class="scard-sub">₹ crores</div></div>
+      <div class="scard"><div class="scard-label">Total trades</div><div class="scard-value">${grandTrades.toLocaleString('en-IN')}</div><div class="scard-sub">across all instruments</div></div>
+      <div class="scard"><div class="scard-label">Market avg WAY</div><div class="scard-value">${fmt2(mktAvgWAY)}<span style="font-size:14px;color:var(--muted)">%</span></div><div class="scard-sub">weighted avg yield</div></div>
+      <div class="scard"><div class="scard-label">Top issuer</div><div class="scard-value" style="font-size:13px;line-height:1.4">${esc(top3[0]?.issuer||'—')}</div><div class="scard-sub">${fmtCr(top3[0]?.totalAmt||0)}</div></div>
+    </div>
+
+    <!-- CHARTS -->
+    <div class="chart-grid" id="chart-grid">
+      <div class="chart-card">
+        <div class="chart-header">
+          <div><div class="chart-title">Issuance Volume by Issuer</div><div class="chart-sub">Total ₹ amount · top N issuers</div></div>
+        </div>
+        <div class="chart-wrap tall"><canvas id="chart-volume"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-header">
+          <div><div class="chart-title">Weighted Avg Yield (WAY%)</div><div class="chart-sub">Avg WAY per issuer vs market average</div></div>
+        </div>
+        <div class="chart-wrap tall"><canvas id="chart-yield"></canvas></div>
+      </div>
+      <div class="chart-card wide">
+        <div class="chart-header">
+          <div><div class="chart-title">Yield vs Volume — Issuer Bubble Chart</div><div class="chart-sub">Bubble size = trade count · X = WAY% · Y = total amount (₹ Cr)</div></div>
+          <div class="chart-legend" id="bubble-legend"></div>
+        </div>
+        <div class="chart-wrap scatter"><canvas id="chart-bubble"></canvas></div>
+      </div>
+      <div class="chart-card wide">
+        <div class="chart-header">
+          <div><div class="chart-title">Yield Range per Issuer</div><div class="chart-sub">Min → Max WAY% band · dot = average</div></div>
+        </div>
+        <div class="chart-wrap"><canvas id="chart-range"></canvas></div>
+      </div>
+    </div>
+
+    <!-- DETAIL TABLE -->
+    <div class="section-title">
+      Issuer Comparison Table
+      <span id="table-count"></span>
+    </div>
+    <div class="table-card">
+      <div class="table-controls">
+        <div class="search-wrap">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input class="search-input" id="tbl-search" type="text" placeholder="Search issuer…" oninput="onTableSearch()" autocomplete="off">
+        </div>
+        <span class="result-meta" id="tbl-meta"></span>
+      </div>
+      <div class="table-scroll">
+        <table>
+          <thead><tr>
+            <th style="width:32px">#</th>
+            <th onclick="tblSort(1)" id="th1">Issuer <span id="ts1"></span></th>
+            <th onclick="tblSort(2)" id="th2" class="r">Total Amt (₹ Cr) <span id="ts2">↓</span></th>
+            <th onclick="tblSort(3)" id="th3" class="r">Trades <span id="ts3"></span></th>
+            <th onclick="tblSort(4)" id="th4" class="r">Avg WAY% <span id="ts4"></span></th>
+            <th onclick="tblSort(5)" id="th5" class="r">Min WAY% <span id="ts5"></span></th>
+            <th onclick="tblSort(6)" id="th6" class="r">Max WAY% <span id="ts6"></span></th>
+            <th onclick="tblSort(7)" id="th7" class="r">Yield Spread <span id="ts7"></span></th>
+            <th onclick="tblSort(8)" id="th8" class="r">Avg WAP <span id="ts8"></span></th>
+            <th onclick="tblSort(9)" id="th9">Instruments <span id="ts9"></span></th>
+            <th onclick="tblSort(10)" id="th10" class="r">Vol Share% <span id="ts10"></span></th>
+          </tr></thead>
+          <tbody id="tbl-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="footer">
+      <span id="analysis-time"></span>
+      <span>Source: <a href="https://www.ftrac.co.in" target="_blank">CCIL F-TRAC ↗</a></span>
+    </div>
+  `;
+
+  document.getElementById('analysis-time').textContent =
+    'Analysed ' + new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+
+  rebuildCharts();
+  renderTable();
+}
+
+// ─── Charts ───────────────────────────────────────────────────
+function destroyCharts() {
+  chartObjs.forEach(c => { try { c.destroy(); } catch {} });
+  chartObjs = [];
+}
+
+function rebuildCharts() {
+  destroyCharts();
+  const n    = parseInt(document.getElementById('top-n-sel')?.value || '15');
+  const topN = [...tableRows].sort((a,b) => b.totalAmt - a.totalAmt).slice(0, n);
+
+  const labels  = topN.map(r => r.issuer.length > 22 ? r.issuer.slice(0,20)+'…' : r.issuer);
+  const amounts = topN.map(r => r.totalAmt / 1e7);
+  const ways    = topN.map(r => r.avgWay);
+  const grandAmt = tableRows.reduce((s,r)=>s+r.totalAmt,0);
+
+  // Determine per-issuer dominant instrument for colour coding
+  const instrColors = topN.map(r => {
+    const sorted = Object.entries(r.instrMap).sort((a,b)=>b[1].totalAmt-a[1].totalAmt);
+    const dom = sorted[0]?.[0] || 'cp-primary';
+    if (dom.startsWith('cp')) return '#38bdf8';
+    return '#a78bfa';
+  });
+
+  // ── Chart 1: Volume horizontal bar ──
+  const mktAvgWAY = avg(tableRows.map(r=>r.avgWay).filter(n=>!isNaN(n)));
+  chartObjs.push(new Chart(document.getElementById('chart-volume'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Total Amount (₹ Cr)',
+        data: amounts,
+        backgroundColor: instrColors.map(c => c+'99'),
+        borderColor: instrColors,
+        borderWidth: 1,
+        borderRadius: 4,
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => ` ₹ ${ctx.parsed.x.toFixed(2)} Cr`
+          }
+        }
+      },
+      scales: {
+        x: { grid:{ color:'#334155' }, ticks:{ callback: v=>'₹'+v+'Cr' } },
+        y: { grid:{ display:false }, ticks:{ font:{size:11} } },
+      }
+    }
+  }));
+
+  // ── Chart 2: WAY bar with market avg reference line ──
+  chartObjs.push(new Chart(document.getElementById('chart-yield'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Avg WAY%',
+          data: ways,
+          backgroundColor: ways.map(w => w > mktAvgWAY ? 'rgba(248,113,113,.7)' : 'rgba(52,211,153,.7)'),
+          borderColor:      ways.map(w => w > mktAvgWAY ? '#f87171' : '#34d399'),
+          borderWidth: 1, borderRadius: 4,
+        },
+        {
+          type: 'line',
+          label: 'Market Avg WAY',
+          data: Array(labels.length).fill(mktAvgWAY),
+          borderColor: '#fbbf24',
+          borderDash: [4,4],
+          borderWidth: 1.5,
+          pointRadius: 0,
+          fill: false,
+        }
+      ]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { position:'bottom', labels:{boxWidth:10,padding:14} },
+        tooltip: { callbacks:{ label: ctx => ` ${ctx.parsed.x?.toFixed(4)}%` } }
+      },
+      scales: {
+        x: { grid:{color:'#334155'}, ticks:{ callback: v=>v+'%' } },
+        y: { grid:{display:false}, ticks:{ font:{size:11} } },
+      }
+    }
+  }));
+
+  // ── Chart 3: Bubble (WAY vs Amount, size=trades) ──
+  const bubbleData = topN
+    .filter(r => !isNaN(r.avgWay) && !isNaN(r.totalAmt))
+    .map((r,i) => ({
+      x: parseFloat(r.avgWay.toFixed(4)),
+      y: parseFloat((r.totalAmt/1e7).toFixed(2)),
+      r: Math.max(5, Math.min(30, Math.sqrt(r.totalTrades) * 2.5)),
+      issuer: r.issuer,
+      trades: r.totalTrades,
+      instr:  Object.keys(r.instrMap).join(', '),
+    }));
+
+  // Split by CP vs CD
+  const cpBubbles = bubbleData.filter(d => {
+    const r = topN.find(t=>t.issuer===d.issuer);
+    return r && Object.keys(r.instrMap).some(k=>k.startsWith('cp'));
+  });
+  const cdBubbles = bubbleData.filter(d => {
+    const r = topN.find(t=>t.issuer===d.issuer);
+    return r && Object.keys(r.instrMap).every(k=>k.startsWith('cd'));
+  });
+
+  // Legend
+  const legendEl = document.getElementById('bubble-legend');
+  if (legendEl) legendEl.innerHTML = `
+    <div class="legend-item"><div class="legend-dot" style="background:#38bdf8"></div>CP issuers</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#a78bfa"></div>CD issuers</div>
+    <div class="legend-item" style="font-size:10px;color:var(--muted)">bubble size = trade count</div>`;
+
+  chartObjs.push(new Chart(document.getElementById('chart-bubble'), {
+    type: 'bubble',
+    data: {
+      datasets: [
+        { label:'CP', data:cpBubbles, backgroundColor:'rgba(56,189,248,.5)', borderColor:'#38bdf8', borderWidth:1 },
+        { label:'CD', data:cdBubbles, backgroundColor:'rgba(167,139,250,.5)', borderColor:'#a78bfa', borderWidth:1 },
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display:false },
+        tooltip: {
+          callbacks: {
+            label: ctx => {
+              const d = ctx.raw;
+              return [`${d.issuer}`, `WAY: ${d.x}%`, `Amount: ₹${d.y} Cr`, `Trades: ${d.trades}`];
+            }
+          }
+        }
+      },
+      scales: {
+        x: { title:{display:true,text:'WAY%',color:'#94a3b8'}, grid:{color:'#334155'}, ticks:{callback:v=>v+'%'} },
+        y: { title:{display:true,text:'Amount (₹ Cr)',color:'#94a3b8'}, grid:{color:'#334155'}, ticks:{callback:v=>'₹'+v} },
+      }
+    }
+  }));
+
+  // ── Chart 4: Yield range (float bar) ──
+  const rangeIssuers = topN.filter(r=>!isNaN(r.minWay)&&!isNaN(r.maxWay)).slice(0,12);
+  const rangeLabels  = rangeIssuers.map(r=>r.issuer.length>20?r.issuer.slice(0,18)+'…':r.issuer);
+  chartObjs.push(new Chart(document.getElementById('chart-range'), {
+    type: 'bar',
+    data: {
+      labels: rangeLabels,
+      datasets: [
+        {
+          label: 'Yield Range',
+          data: rangeIssuers.map(r => [parseFloat(r.minWay.toFixed(4)), parseFloat(r.maxWay.toFixed(4))]),
+          backgroundColor: 'rgba(56,189,248,.25)',
+          borderColor: '#38bdf8',
+          borderWidth: 1,
+          borderRadius: 2,
+          borderSkipped: false,
+        },
+        {
+          type: 'scatter',
+          label: 'Avg WAY%',
+          data: rangeIssuers.map((r,i) => ({ x: i, y: parseFloat(r.avgWay.toFixed(4)) })),
+          backgroundColor: '#fbbf24',
+          pointRadius: 5,
+          pointHoverRadius: 7,
+        }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { position:'bottom', labels:{boxWidth:10,padding:14} },
+        tooltip: { callbacks:{
+          label: ctx => {
+            if (Array.isArray(ctx.parsed.y)) return `Range: ${ctx.parsed.y[0]}% → ${ctx.parsed.y[1]}%`;
+            return `Avg WAY: ${ctx.parsed.y?.toFixed?.(4)}%`;
+          }
+        }}
+      },
+      scales: {
+        x: { grid:{display:false}, ticks:{font:{size:10}} },
+        y: { grid:{color:'#334155'}, ticks:{callback:v=>v+'%'} }
+      }
+    }
+  }));
+}
+
+// ─── Detail Table ─────────────────────────────────────────────
+function renderTable() {
+  const grandAmt = tableRows.reduce((s,r)=>s+r.totalAmt,0);
+  let rows = [...tableRows];
+
+  // Search
+  if (searchQ) rows = rows.filter(r => r.issuer.toLowerCase().includes(searchQ));
+
+  // Sort
+  rows.sort((a,b) => {
+    let va, vb;
+    switch(sortCol) {
+      case 1:  va=a.issuer; vb=b.issuer; break;
+      case 2:  va=a.totalAmt; vb=b.totalAmt; break;
+      case 3:  va=a.totalTrades; vb=b.totalTrades; break;
+      case 4:  va=a.avgWay; vb=b.avgWay; break;
+      case 5:  va=a.minWay; vb=b.minWay; break;
+      case 6:  va=a.maxWay; vb=b.maxWay; break;
+      case 7:  va=a.maxWay-a.minWay; vb=b.maxWay-b.minWay; break;
+      case 8:  va=a.avgWap; vb=b.avgWap; break;
+      case 9:  va=a.instrCount; vb=b.instrCount; break;
+      case 10: va=a.totalAmt/grandAmt; vb=b.totalAmt/grandAmt; break;
+      default: va=a.totalAmt; vb=b.totalAmt;
+    }
+    if (typeof va==='string') return sortAsc ? va.localeCompare(vb) : vb.localeCompare(va);
+    return sortAsc ? va-vb : vb-va;
+  });
+
+  // By-amt rank (for badges)
+  const rankMap = {};
+  [...tableRows].sort((a,b)=>b.totalAmt-a.totalAmt).forEach((r,i)=>rankMap[r.issuer]=i+1);
+
+  const maxAmt = Math.max(...tableRows.map(r=>r.totalAmt));
+  const tbody  = document.getElementById('tbl-body');
+  if (!tbody) return;
+
+  document.getElementById('tbl-meta').textContent =
+    searchQ ? `${rows.length} of ${tableRows.length}` : `${tableRows.length} issuers`;
+  document.getElementById('table-count').textContent =
+    `${rows.length} issuers`;
+
+  if (!rows.length) {
+    tbody.innerHTML = `<tr><td colspan="11" style="text-align:center;padding:2rem;color:var(--muted)">No issuers match "${esc(searchQ)}"</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = rows.map((r, idx) => {
+    const rank     = rankMap[r.issuer];
+    const spread   = !isNaN(r.maxWay)&&!isNaN(r.minWay) ? r.maxWay-r.minWay : NaN;
+    const volShare = (r.totalAmt/grandAmt*100).toFixed(2);
+    const barW     = Math.round(r.totalAmt/maxAmt*120);
+
+    const instrTags = r.instruments.map(k => {
+      const m = INSTRUMENT_META[k];
+      return `<span class="instr-tag ${m.type}">${m.label.split(' ')[0]}</span><span class="instr-tag ${m.market}">${m.label.split(' ')[1]||''}</span>`;
+    }).join('');
+
+    return `<tr>
+      <td><div class="rank-badge ${rank<=3?'top3':''}">${rank}</div></td>
+      <td class="issuer-cell">${esc(r.issuer)}</td>
+      <td class="mono">
+        <div class="bar-cell">
+          <div class="mini-bar ${r.instruments.some(k=>k.startsWith('cd'))?'cd':''}" style="width:${barW}px"></div>
+          ${(r.totalAmt/1e7).toFixed(2)}
+        </div>
+      </td>
+      <td class="mono">${r.totalTrades.toLocaleString('en-IN')}</td>
+      <td class="mono">${fmt4(r.avgWay)}</td>
+      <td class="mono">${fmt4(r.minWay)}</td>
+      <td class="mono">${fmt4(r.maxWay)}</td>
+      <td class="mono" style="color:${!isNaN(spread)&&spread>0.5?'var(--warn)':'var(--muted)'}">${fmt4(spread)}</td>
+      <td class="mono">${fmt4(r.avgWap)}</td>
+      <td style="min-width:120px">${instrTags}</td>
+      <td class="mono">${volShare}%</td>
+    </tr>`;
+  }).join('');
+}
+
+function tblSort(col) {
+  if (sortCol===col) sortAsc=!sortAsc; else { sortCol=col; sortAsc=col===1; }
+  for(let i=1;i<=10;i++){
+    const th=document.getElementById('th'+i);
+    const s=document.getElementById('ts'+i);
+    if(th) th.classList.toggle('sorted',i===col);
+    if(s)  s.textContent = i===col ? (sortAsc?'↑':'↓') : '';
+  }
+  renderTable();
+}
+
+function onTableSearch() {
+  searchQ = (document.getElementById('tbl-search')?.value||'').trim().toLowerCase();
+  renderTable();
+}
+
+// ─── Init ─────────────────────────────────────────────────────
+renderPage();
+
+// Re-render if data updates in another tab
+window.addEventListener('storage', e => {
+  if (e.key === 'ftrac_tabdata') renderPage();
+});
+</script>
+</body>
+</html>

@@ -38,6 +38,12 @@ header{background:rgba(30,41,59,.96);backdrop-filter:blur(8px);border-bottom:1px
 .dot.fetching{background:var(--warn);box-shadow:0 0 6px var(--warn);animation:blink 1s infinite;}
 .dot.error{background:var(--danger);box-shadow:none;animation:none;}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.nav-links{display:flex;gap:4px;}
+.nav-link{padding:6px 14px;border-radius:7px;font-size:13px;font-weight:500;cursor:pointer;
+  border:none;background:transparent;color:var(--muted);text-decoration:none;transition:all .15s;
+  display:flex;align-items:center;gap:6px;}
+.nav-link:hover{color:var(--text);background:var(--surface2);}
+.nav-link.active{background:var(--surface2);color:var(--accent);}
 .icon-btn{background:transparent;border:1px solid var(--border);color:var(--muted);width:32px;height:32px;
   border-radius:7px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;}
 .icon-btn:hover{border-color:var(--accent);color:var(--accent);}
@@ -189,6 +195,16 @@ mark{background:rgba(251,191,36,.2);color:var(--warn);border-radius:2px;padding:
       <div class="sub">CCIL F-TRAC Platform</div>
     </div>
   </div>
+  <nav class="nav-links">
+    <a class="nav-link active" href="/index.html">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      Data
+    </a>
+    <a class="nav-link" href="/analytics.html">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      Analytics
+    </a>
+  </nav>
   <div class="header-right">
     <div class="live-pill">
       <span class="dot fetching" id="dot"></span>
@@ -283,6 +299,13 @@ mark{background:rgba(251,191,36,.2);color:var(--warn);border-radius:2px;padding:
         <input class="search-input" id="search-input" type="text" placeholder="Filter by issuer…" oninput="onSearch()" autocomplete="off" spellcheck="false">
       </div>
       <span class="result-meta" id="result-meta"></span>
+      <a href="/analytics.html" id="analyse-btn" style="display:none;margin-left:auto;
+        background:rgba(56,189,248,.12);border:1px solid rgba(56,189,248,.3);color:var(--accent);
+        padding:5px 13px;border-radius:7px;font-size:12px;font-weight:500;text-decoration:none;
+        display:none;align-items:center;gap:6px;">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        Analyse
+      </a>
     </div>
     <div class="table-scroll">
       <table>
@@ -468,7 +491,8 @@ async function fetchData() {
 
     allRows = rows;
     tabData[currentInstrument] = rows;
-    // Update tab badge
+    // Persist to sessionStorage so analytics.html can read it
+    try { sessionStorage.setItem('ftrac_tabdata', JSON.stringify(tabData)); } catch {}
     document.getElementById('badge-' + currentInstrument).textContent = rows.length.toLocaleString('en-IN');
     page = 0; sortCol = -1; sortAsc = true;
     buildHeader();
@@ -477,6 +501,9 @@ async function fetchData() {
     document.getElementById('fetch-time').textContent =
       'Updated ' + new Date().toLocaleTimeString('en-IN', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
     setStatus('ok', rows.length.toLocaleString('en-IN') + ' records');
+    // Show analyse shortcut
+    const ab = document.getElementById('analyse-btn');
+    if (ab) ab.style.display = 'flex';
   } catch (err) {
     setStatus('error', 'Error');
     showBanner('Could not load data.', err.message);
