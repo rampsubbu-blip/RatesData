@@ -4,154 +4,180 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#0f172a">
-<meta name="description" content="Live Primary CP Issuances from CCIL F-TRAC Platform">
-<title>FTRAC · Primary CP Issuances</title>
+<title>FTRAC · Money Market Data</title>
 <link rel="manifest" href="/manifest.json">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='16' fill='%230f172a'/><text y='68' x='12' font-size='60' font-family='monospace' fill='%2338bdf8'>F</text></svg>">
-<link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap">
 <style>
-  :root {
-    --bg:#0f172a; --surface:#1e293b; --surface2:#263248;
-    --border:#334155; --border2:#475569;
-    --text:#f1f5f9; --muted:#94a3b8;
-    --accent:#38bdf8; --accent-dim:rgba(56,189,248,.12);
-    --success:#34d399; --warn:#fbbf24; --danger:#f87171;
-    --font:'DM Mono','Fira Code',monospace;
-    --sans:'DM Sans',system-ui,sans-serif;
-  }
-  *{box-sizing:border-box;margin:0;padding:0;}
-  body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh;font-size:14px;}
+:root {
+  --bg:#0f172a; --surface:#1e293b; --surface2:#263248; --surface3:#1a2744;
+  --border:#334155; --border2:#475569;
+  --text:#f1f5f9; --muted:#94a3b8;
+  --accent:#38bdf8; --accent-dim:rgba(56,189,248,.12);
+  --success:#34d399; --warn:#fbbf24; --danger:#f87171;
+  --cp-color:#38bdf8; --cd-color:#a78bfa;
+  --font:'DM Mono','Fira Code',monospace;
+  --sans:'DM Sans',system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh;font-size:14px;}
 
-  /* HEADER */
-  header{background:rgba(30,41,59,.96);backdrop-filter:blur(8px);border-bottom:1px solid var(--border);
-    padding:0 1.5rem;height:56px;display:flex;align-items:center;justify-content:space-between;
-    position:sticky;top:0;z-index:100;}
-  .logo{display:flex;align-items:center;gap:10px;}
-  .logo-badge{background:var(--accent);color:#0c1a2e;font-family:var(--font);font-size:11px;font-weight:500;
-    padding:3px 9px;border-radius:5px;letter-spacing:.06em;}
-  .logo-text .title{font-size:14px;font-weight:600;}
-  .logo-text .sub{font-size:11px;color:var(--muted);}
-  .header-right{display:flex;align-items:center;gap:10px;}
-  .live-pill{display:flex;align-items:center;gap:6px;background:var(--surface2);border:1px solid var(--border);
-    border-radius:20px;padding:4px 10px;font-size:11px;color:var(--muted);}
-  .dot{width:7px;height:7px;border-radius:50%;background:var(--success);box-shadow:0 0 6px var(--success);}
-  .dot.fetching{background:var(--warn);box-shadow:0 0 6px var(--warn);animation:blink 1s infinite;}
-  .dot.error{background:var(--danger);box-shadow:none;animation:none;}
-  @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
-  .icon-btn{background:transparent;border:1px solid var(--border);color:var(--muted);width:32px;height:32px;
-    border-radius:7px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;}
-  .icon-btn:hover{border-color:var(--accent);color:var(--accent);}
-  .icon-btn:disabled{opacity:.35;cursor:default;}
-  .spin{animation:spin 1s linear infinite;}
-  @keyframes spin{to{transform:rotate(360deg)}}
+/* HEADER */
+header{background:rgba(30,41,59,.96);backdrop-filter:blur(8px);border-bottom:1px solid var(--border);
+  padding:0 1.5rem;height:56px;display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:100;}
+.logo{display:flex;align-items:center;gap:10px;}
+.logo-badge{background:var(--accent);color:#0c1a2e;font-family:var(--font);font-size:11px;font-weight:500;
+  padding:3px 9px;border-radius:5px;letter-spacing:.06em;}
+.logo-text .title{font-size:14px;font-weight:600;}
+.logo-text .sub{font-size:11px;color:var(--muted);}
+.header-right{display:flex;align-items:center;gap:10px;}
+.live-pill{display:flex;align-items:center;gap:6px;background:var(--surface2);border:1px solid var(--border);
+  border-radius:20px;padding:4px 10px;font-size:11px;color:var(--muted);}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--success);box-shadow:0 0 6px var(--success);}
+.dot.fetching{background:var(--warn);box-shadow:0 0 6px var(--warn);animation:blink 1s infinite;}
+.dot.error{background:var(--danger);box-shadow:none;animation:none;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.icon-btn{background:transparent;border:1px solid var(--border);color:var(--muted);width:32px;height:32px;
+  border-radius:7px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.icon-btn:hover{border-color:var(--accent);color:var(--accent);}
+.icon-btn:disabled{opacity:.35;cursor:default;}
+.spin{animation:spin 1s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
 
-  /* MAIN */
-  main{max-width:1440px;margin:0 auto;padding:1.5rem;}
+/* MAIN */
+main{max-width:1440px;margin:0 auto;padding:1.25rem 1.5rem;}
 
-  /* FILTER PANEL */
-  .filter-panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;
-    padding:1.1rem 1.25rem;margin-bottom:1.25rem;}
-  .filter-row{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;}
-  .filter-group{display:flex;flex-direction:column;gap:5px;}
-  .filter-label{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:500;}
-  .filter-input{background:var(--surface2);border:1px solid var(--border);border-radius:7px;
-    padding:8px 11px;color:var(--text);font-size:13px;font-family:var(--sans);outline:none;transition:border-color .15s;}
-  .filter-input:focus{border-color:var(--accent);}
-  .filter-input::placeholder{color:var(--muted);}
-  input[type="date"].filter-input::-webkit-calendar-picker-indicator{filter:invert(.6);}
-  .search-group{flex:1;min-width:200px;}
-  .date-group{min-width:140px;}
-  .fetch-btn{background:var(--accent);color:#0c1a2e;border:none;border-radius:7px;
-    padding:8px 20px;font-size:13px;font-weight:600;font-family:var(--sans);cursor:pointer;
-    display:flex;align-items:center;gap:7px;white-space:nowrap;transition:opacity .15s;height:36px;}
-  .fetch-btn:hover{opacity:.88;}
-  .fetch-btn:disabled{opacity:.45;cursor:default;}
-  .reset-btn{background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:7px;
-    padding:8px 14px;font-size:12px;font-family:var(--sans);cursor:pointer;transition:all .15s;height:36px;}
-  .reset-btn:hover{border-color:var(--border2);color:var(--text);}
+/* INSTRUMENT TABS */
+.tab-bar{display:flex;gap:4px;margin-bottom:1.25rem;background:var(--surface);
+  border:1px solid var(--border);border-radius:10px;padding:4px;width:fit-content;}
+.tab{display:flex;align-items:center;gap:7px;padding:7px 16px;border-radius:7px;
+  font-size:13px;font-weight:500;cursor:pointer;border:none;background:transparent;
+  color:var(--muted);transition:all .15s;font-family:var(--sans);}
+.tab:hover{color:var(--text);}
+.tab.active{background:var(--surface2);color:var(--text);}
+.tab.active.cp{color:var(--cp-color);box-shadow:inset 0 0 0 1px rgba(56,189,248,.3);}
+.tab.active.cd{color:var(--cd-color);box-shadow:inset 0 0 0 1px rgba(167,139,250,.3);}
+.tab-dot{width:6px;height:6px;border-radius:50%;}
+.tab.cp .tab-dot{background:var(--cp-color);}
+.tab.cd .tab-dot{background:var(--cd-color);}
+.tab-badge{font-size:10px;padding:1px 6px;border-radius:20px;margin-left:2px;font-weight:600;}
+.tab.active.cp .tab-badge{background:rgba(56,189,248,.15);color:var(--cp-color);}
+.tab.active.cd .tab-badge{background:rgba(167,139,250,.15);color:var(--cd-color);}
 
-  /* RANGE HINT */
-  .range-hint{margin-top:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
-  .hint-chip{font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid var(--border);
-    color:var(--muted);display:inline-flex;align-items:center;gap:5px;}
-  .hint-chip.active{border-color:rgba(56,189,248,.4);color:var(--accent);background:var(--accent-dim);}
-  .hint-chip.warn{border-color:rgba(251,191,36,.3);color:var(--warn);background:rgba(251,191,36,.08);}
-  .hint-chip.ok{border-color:rgba(52,211,153,.3);color:var(--success);background:rgba(52,211,153,.08);}
-  .range-days{font-size:11px;color:var(--muted);}
+/* NCD INFO CARD */
+.info-card{background:var(--surface3);border:1px solid rgba(167,139,250,.2);border-radius:10px;
+  padding:1rem 1.25rem;margin-bottom:1.25rem;display:none;}
+.info-card.show{display:flex;gap:12px;align-items:flex-start;}
+.info-card svg{flex-shrink:0;margin-top:1px;}
+.info-card-body h4{font-size:13px;font-weight:600;color:var(--cd-color);margin-bottom:4px;}
+.info-card-body p{font-size:12px;color:var(--muted);line-height:1.6;}
+.info-card-body a{color:var(--accent);text-decoration:none;}
+.info-card-body a:hover{text-decoration:underline;}
 
-  /* ERROR BANNER */
-  .banner{display:none;background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.25);
-    border-radius:10px;padding:.9rem 1.1rem;margin-bottom:1.25rem;gap:10px;align-items:flex-start;}
-  .banner.show{display:flex;}
-  .banner p{font-size:13px;color:#fca5a5;line-height:1.5;}
-  .banner small{font-size:11px;color:var(--muted);display:block;margin-top:3px;}
+/* FILTER PANEL */
+.filter-panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;
+  padding:1rem 1.25rem;margin-bottom:1.25rem;}
+.filter-row{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;}
+.filter-group{display:flex;flex-direction:column;gap:5px;}
+.filter-label{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:500;}
+.filter-input{background:var(--surface2);border:1px solid var(--border);border-radius:7px;
+  padding:8px 11px;color:var(--text);font-size:13px;font-family:var(--sans);outline:none;transition:border-color .15s;}
+.filter-input:focus{border-color:var(--accent);}
+.filter-input::placeholder{color:var(--muted);}
+input[type="date"].filter-input::-webkit-calendar-picker-indicator{filter:invert(.6);}
+.date-group{min-width:140px;}
+.fetch-btn{background:var(--accent);color:#0c1a2e;border:none;border-radius:7px;
+  padding:8px 18px;font-size:13px;font-weight:600;font-family:var(--sans);cursor:pointer;
+  display:flex;align-items:center;gap:7px;white-space:nowrap;transition:opacity .15s;height:36px;}
+.fetch-btn:hover{opacity:.88;}
+.fetch-btn:disabled{opacity:.45;cursor:default;}
+.reset-btn{background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:7px;
+  padding:8px 14px;font-size:12px;font-family:var(--sans);cursor:pointer;transition:all .15s;height:36px;}
+.reset-btn:hover{border-color:var(--border2);color:var(--text);}
 
-  /* METRICS */
-  .metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:1.25rem;}
-  .metric{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:.9rem 1.1rem;}
-  .metric.hi{border-color:rgba(56,189,248,.3);}
-  .metric-label{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:5px;}
-  .metric-value{font-family:var(--font);font-size:22px;font-weight:500;}
-  .metric.hi .metric-value{color:var(--accent);}
-  .metric-unit{font-size:10px;color:var(--muted);margin-top:2px;}
+/* RANGE HINT */
+.range-hint{margin-top:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.hint-chip{font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid var(--border);
+  color:var(--muted);display:inline-flex;align-items:center;gap:5px;}
+.hint-chip.active{border-color:rgba(56,189,248,.4);color:var(--accent);background:var(--accent-dim);}
+.hint-chip.ok{border-color:rgba(52,211,153,.3);color:var(--success);background:rgba(52,211,153,.08);}
+.hint-chip.warn{border-color:rgba(251,191,36,.3);color:var(--warn);background:rgba(251,191,36,.08);}
 
-  /* TABLE */
-  .card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
-  .table-scroll{overflow-x:auto;}
-  table{width:100%;border-collapse:collapse;white-space:nowrap;font-size:13px;}
-  thead{background:var(--surface2);border-bottom:1px solid var(--border);}
-  th{padding:10px 14px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.07em;
-    color:var(--muted);font-weight:500;cursor:pointer;user-select:none;}
-  th:hover{color:var(--text);}
-  th.sorted{color:var(--accent);}
-  th.r{text-align:right;}
-  td{padding:9px 14px;border-bottom:1px solid rgba(51,65,85,.6);vertical-align:middle;}
-  tr:last-child td{border-bottom:none;}
-  tr:hover td{background:rgba(56,189,248,.03);}
-  td.mono{font-family:var(--font);font-size:12px;color:var(--muted);}
-  td.issuer{font-weight:500;min-width:220px;max-width:320px;white-space:normal;line-height:1.4;}
-  td.r{text-align:right;}
-  td.amt{text-align:right;font-family:var(--font);color:var(--accent);}
-  td.yield{text-align:right;font-family:var(--font);color:var(--success);}
-  td.wap{text-align:right;font-family:var(--font);}
-  td.way{text-align:right;font-family:var(--font);color:var(--warn);}
-  mark{background:rgba(251,191,36,.2);color:var(--warn);border-radius:2px;padding:0 1px;}
+/* ERROR BANNER */
+.banner{display:none;background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.25);
+  border-radius:10px;padding:.9rem 1.1rem;margin-bottom:1.25rem;gap:10px;align-items:flex-start;}
+.banner.show{display:flex;}
+.banner p{font-size:13px;color:#fca5a5;line-height:1.5;}
+.banner small{font-size:11px;color:var(--muted);display:block;margin-top:3px;}
 
-  /* STATE */
-  .state{display:flex;flex-direction:column;align-items:center;justify-content:center;
-    padding:4rem 1.5rem;color:var(--muted);gap:12px;text-align:center;}
-  .state p{font-size:14px;}
-  .state small{font-size:12px;color:var(--border2);max-width:340px;}
-  .loader{width:22px;height:22px;border:2px solid var(--border2);border-top-color:var(--accent);border-radius:50%;}
+/* METRICS */
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:10px;margin-bottom:1.25rem;}
+.metric{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:.85rem 1rem;}
+.metric.hi-cp{border-color:rgba(56,189,248,.3);}
+.metric.hi-cd{border-color:rgba(167,139,250,.3);}
+.metric-label{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:5px;}
+.metric-value{font-family:var(--font);font-size:20px;font-weight:500;}
+.metric.hi-cp .metric-value{color:var(--cp-color);}
+.metric.hi-cd .metric-value{color:var(--cd-color);}
+.metric-unit{font-size:10px;color:var(--muted);margin-top:2px;}
 
-  /* CONTROLS (issuer search below table-header) */
-  .table-controls{display:flex;align-items:center;gap:10px;padding:.75rem 1rem;
-    border-bottom:1px solid var(--border);background:var(--surface2);flex-wrap:wrap;}
-  .inline-search-wrap{position:relative;flex:1;min-width:180px;max-width:380px;}
-  .inline-search-wrap svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none;}
-  .inline-search{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:7px;
-    padding:7px 11px 7px 32px;color:var(--text);font-size:13px;font-family:var(--sans);outline:none;transition:border-color .15s;}
-  .inline-search:focus{border-color:var(--accent);}
-  .inline-search::placeholder{color:var(--muted);}
-  .result-meta{font-size:12px;color:var(--muted);margin-left:auto;white-space:nowrap;}
+/* TABLE */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+.table-controls{display:flex;align-items:center;gap:10px;padding:.7rem 1rem;
+  border-bottom:1px solid var(--border);background:var(--surface2);flex-wrap:wrap;}
+.search-wrap{position:relative;flex:1;min-width:180px;max-width:380px;}
+.search-wrap svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none;}
+.search-input{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:7px;
+  padding:7px 11px 7px 32px;color:var(--text);font-size:13px;font-family:var(--sans);outline:none;transition:border-color .15s;}
+.search-input:focus{border-color:var(--accent);}
+.search-input::placeholder{color:var(--muted);}
+.result-meta{font-size:12px;color:var(--muted);margin-left:auto;white-space:nowrap;}
+.table-scroll{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;white-space:nowrap;font-size:13px;}
+thead{background:var(--surface2);border-bottom:1px solid var(--border);}
+th{padding:10px 14px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.07em;
+  color:var(--muted);font-weight:500;cursor:pointer;user-select:none;}
+th:hover{color:var(--text);}
+th.sorted{color:var(--accent);}
+th.r{text-align:right;}
+td{padding:9px 14px;border-bottom:1px solid rgba(51,65,85,.6);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:rgba(56,189,248,.03);}
+td.mono{font-family:var(--font);font-size:12px;color:var(--muted);}
+td.issuer{font-weight:500;min-width:200px;max-width:300px;white-space:normal;line-height:1.4;}
+td.r{text-align:right;}
+td.amt{text-align:right;font-family:var(--font);}
+td.amt.cp{color:var(--cp-color);}
+td.amt.cd{color:var(--cd-color);}
+td.yield{text-align:right;font-family:var(--font);color:var(--success);}
+td.way{text-align:right;font-family:var(--font);color:var(--warn);}
+td.wap{text-align:right;font-family:var(--font);}
+mark{background:rgba(251,191,36,.2);color:var(--warn);border-radius:2px;padding:0 1px;}
 
-  /* PAGER */
-  .pager{display:none;align-items:center;justify-content:space-between;padding:11px 14px;
-    border-top:1px solid var(--border);background:var(--surface2);}
-  .pager.show{display:flex;}
-  .pager-info{font-size:12px;color:var(--muted);}
-  .pager-btns{display:flex;gap:6px;}
-  .pager-btn{background:transparent;border:1px solid var(--border);color:var(--muted);padding:5px 13px;
-    border-radius:6px;font-size:12px;cursor:pointer;font-family:var(--sans);transition:all .15s;}
-  .pager-btn:hover:not(:disabled){border-color:var(--accent);color:var(--accent);}
-  .pager-btn:disabled{opacity:.3;cursor:default;}
+/* STATE */
+.state{display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:4rem 1.5rem;color:var(--muted);gap:12px;text-align:center;}
+.state p{font-size:14px;}
+.state small{font-size:12px;color:var(--border2);max-width:360px;}
+.loader{width:22px;height:22px;border:2px solid var(--border2);border-top-color:var(--accent);border-radius:50%;}
 
-  /* FOOTER */
-  .footer{display:flex;justify-content:space-between;align-items:center;margin-top:1rem;
-    font-size:11px;color:var(--border2);flex-wrap:wrap;gap:6px;}
-  .footer a{color:var(--border2);text-decoration:none;}
-  .footer a:hover{color:var(--accent);}
+/* PAGER */
+.pager{display:none;align-items:center;justify-content:space-between;padding:11px 14px;
+  border-top:1px solid var(--border);background:var(--surface2);}
+.pager.show{display:flex;}
+.pager-info{font-size:12px;color:var(--muted);}
+.pager-btns{display:flex;gap:6px;}
+.pager-btn{background:transparent;border:1px solid var(--border);color:var(--muted);padding:5px 13px;
+  border-radius:6px;font-size:12px;cursor:pointer;font-family:var(--sans);transition:all .15s;}
+.pager-btn:hover:not(:disabled){border-color:var(--accent);color:var(--accent);}
+.pager-btn:disabled{opacity:.3;cursor:default;}
+
+/* FOOTER */
+.footer{display:flex;justify-content:space-between;align-items:center;margin-top:1rem;
+  font-size:11px;color:var(--border2);flex-wrap:wrap;gap:6px;}
+.footer a{color:var(--border2);text-decoration:none;}
+.footer a:hover{color:var(--accent);}
 </style>
 </head>
 <body>
@@ -159,7 +185,7 @@
   <div class="logo">
     <span class="logo-badge">FTRAC</span>
     <div class="logo-text">
-      <div class="title">Primary CP Issuances</div>
+      <div class="title">Money Market Data</div>
       <div class="sub">CCIL F-TRAC Platform</div>
     </div>
   </div>
@@ -177,91 +203,90 @@
 </header>
 
 <main>
+  <!-- INSTRUMENT TABS -->
+  <div class="tab-bar">
+    <button class="tab cp active" onclick="switchTab('cp-primary',this)">
+      <span class="tab-dot"></span>CP Primary
+      <span class="tab-badge" id="badge-cp-primary">—</span>
+    </button>
+    <button class="tab cp" onclick="switchTab('cp-secondary',this)">
+      <span class="tab-dot"></span>CP Secondary
+      <span class="tab-badge" id="badge-cp-secondary">—</span>
+    </button>
+    <button class="tab cd" onclick="switchTab('cd-primary',this)">
+      <span class="tab-dot"></span>CD Primary
+      <span class="tab-badge" id="badge-cd-primary">—</span>
+    </button>
+    <button class="tab cd" onclick="switchTab('cd-secondary',this)">
+      <span class="tab-dot"></span>CD Secondary
+      <span class="tab-badge" id="badge-cd-secondary">—</span>
+    </button>
+  </div>
+
+  <!-- NCD INFO CARD -->
+  <div class="info-card" id="ncd-info">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    <div class="info-card-body">
+      <h4>What about long-term NCDs?</h4>
+      <p>F-TRAC covers <strong>short-term instruments only</strong> — CP, CD, and CB Repo (NCDs &lt;1yr maturity). Long-term NCD primary issuances are mandatorily reported on <strong>SEBI's EBP platform</strong> and traded on <strong>NSE CBRICS</strong> and <strong>BSE WDM</strong> — both require registered participant login and are not publicly scrapable. For NCD secondary market data, consider <a href="https://www.nseindia.com/market-data/bonds-traded-in-capital-market" target="_blank">NSE Bonds ↗</a> or <a href="https://www.bseindia.com/markets/debt/tradereport.aspx" target="_blank">BSE Debt Trade Report ↗</a> (require browser login).</p>
+    </div>
+  </div>
+
   <!-- FILTER PANEL -->
   <div class="filter-panel">
     <div class="filter-row">
-      <!-- Date From -->
       <div class="filter-group date-group">
         <label class="filter-label" for="date-from">From Date</label>
         <input class="filter-input" type="date" id="date-from" onchange="onDateChange()">
       </div>
-      <!-- Date To -->
       <div class="filter-group date-group">
         <label class="filter-label" for="date-to">To Date</label>
         <input class="filter-input" type="date" id="date-to" onchange="onDateChange()">
       </div>
-      <!-- Fetch button -->
       <button class="fetch-btn" id="fetch-btn" onclick="fetchData()">
         <svg id="fetch-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
         </svg>
         Fetch Data
       </button>
-      <!-- Reset -->
-      <button class="reset-btn" onclick="resetDates()">Reset to Today</button>
+      <button class="reset-btn" onclick="resetDates()">Today</button>
     </div>
-
-    <!-- Range hint bar -->
-    <div class="range-hint" id="range-hint">
+    <div class="range-hint">
       <span class="hint-chip" id="mode-chip">
         <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        <span id="mode-label">Checking hours…</span>
+        <span id="mode-label">Checking…</span>
       </span>
-      <span class="hint-chip" id="range-chip">
-        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-        <span id="range-label">Select a date range</span>
-      </span>
-      <span class="hint-chip" id="limit-chip">
-        <span id="limit-label"></span>
-      </span>
+      <span class="hint-chip" id="range-chip"><span id="range-label">Select a range</span></span>
+      <span class="hint-chip" id="limit-chip"><span id="limit-label"></span></span>
     </div>
   </div>
 
-  <!-- ERROR -->
+  <!-- ERROR BANNER -->
   <div class="banner" id="error-banner">
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
     <div><p id="error-msg"></p><small id="error-detail"></small></div>
   </div>
 
   <!-- METRICS -->
-  <div class="metrics">
-    <div class="metric"><div class="metric-label">Total issuances</div><div class="metric-value" id="m-total">—</div><div class="metric-unit">records</div></div>
-    <div class="metric hi"><div class="metric-label">Unique issuers</div><div class="metric-value" id="m-issuers">—</div><div class="metric-unit">entities</div></div>
-    <div class="metric"><div class="metric-label">Total issued amount</div><div class="metric-value" id="m-amount">—</div><div class="metric-unit">₹ crores</div></div>
-    <div class="metric"><div class="metric-label">Date range</div><div class="metric-value" id="m-date" style="font-size:13px;line-height:1.6">—</div><div class="metric-unit">from · to</div></div>
+  <div class="metrics" id="metrics-row">
+    <div class="metric" id="m-box-total"><div class="metric-label">Records</div><div class="metric-value" id="m-total">—</div><div class="metric-unit">issuances</div></div>
+    <div class="metric" id="m-box-issuers"><div class="metric-label">Unique issuers</div><div class="metric-value" id="m-issuers">—</div><div class="metric-unit">entities</div></div>
+    <div class="metric" id="m-box-amount"><div class="metric-label">Total amount</div><div class="metric-value" id="m-amount">—</div><div class="metric-unit">₹ crores</div></div>
+    <div class="metric"><div class="metric-label">Date range</div><div class="metric-value" id="m-date" style="font-size:13px;line-height:1.7">—</div><div class="metric-unit">from · to</div></div>
   </div>
 
   <!-- TABLE -->
   <div class="card">
-    <!-- Inline issuer search -->
     <div class="table-controls">
-      <div class="inline-search-wrap">
+      <div class="search-wrap">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input class="inline-search" id="search-input" type="text" placeholder="Filter by issuer name…" oninput="onSearch()" autocomplete="off" spellcheck="false">
+        <input class="search-input" id="search-input" type="text" placeholder="Filter by issuer…" oninput="onSearch()" autocomplete="off" spellcheck="false">
       </div>
       <span class="result-meta" id="result-meta"></span>
     </div>
-
     <div class="table-scroll">
       <table>
-        <thead>
-          <tr>
-            <th onclick="sortBy(0)">ISIN <span id="s0"></span></th>
-            <th onclick="sortBy(1)">ISIN Description <span id="s1"></span></th>
-            <th onclick="sortBy(2)">Maturity Date <span id="s2"></span></th>
-            <th onclick="sortBy(3)" class="sorted">Issuer <span id="s3">↕</span></th>
-            <th onclick="sortBy(4)">Deal Date <span id="s4"></span></th>
-            <th onclick="sortBy(5)">Sett <span id="s5"></span></th>
-            <th onclick="sortBy(6)" class="r">Trades <span id="s6"></span></th>
-            <th onclick="sortBy(7)" class="r">Issue Amount (₹) <span id="s7"></span></th>
-            <th onclick="sortBy(8)" class="r">Min Price <span id="s8"></span></th>
-            <th onclick="sortBy(9)" class="r">Max Price <span id="s9"></span></th>
-            <th onclick="sortBy(10)" class="r">Min Yield% <span id="s10"></span></th>
-            <th onclick="sortBy(11)" class="r">Max Yield% <span id="s11"></span></th>
-            <th onclick="sortBy(12)" class="r">WAP <span id="s12"></span></th>
-            <th onclick="sortBy(13)" class="r">WAY% <span id="s13"></span></th>
-          </tr>
-        </thead>
+        <thead><tr id="thead-row"></tr></thead>
         <tbody id="tbody">
           <tr><td colspan="14"><div class="state"><div class="loader spin"></div><p>Fetching live data from FTRAC…</p></div></td></tr>
         </tbody>
@@ -278,74 +303,100 @@
 
   <div class="footer">
     <span id="fetch-time"></span>
-    <span>Data: <a href="https://www.ftrac.co.in/CP_PRI_MEM_TRAD_MARK_WATC_VIEW.aspx" target="_blank" rel="noopener">CCIL F-TRAC ↗</a></span>
+    <span>Source: <a href="https://www.ftrac.co.in" target="_blank" rel="noopener">CCIL F-TRAC ↗</a></span>
   </div>
 </main>
 
 <script>
-// ─── Constants ───────────────────────────────────────────────
-const PAGE_SIZE   = 20;
-const ISSUER_COL  = 3;
-// Business hours IST: Mon–Fri 09:00–18:00
-const BIZ_START   = 9;
-const BIZ_END     = 18;
-const MAX_BIZ     = 7;   // days during business hours
-const MAX_AFTER   = 30;  // days outside business hours
+// ─── Config ──────────────────────────────────────────────────
+const PAGE_SIZE  = 20;
+const BIZ_START  = 9;
+const BIZ_END    = 18;
+const MAX_BIZ    = 7;
+const MAX_AFTER  = 30;
+
+const INSTRUMENTS = {
+  'cp-primary':   { label:'CP Primary',   type:'cp', issuerCol:3, amtCol:7 },
+  'cp-secondary': { label:'CP Secondary', type:'cp', issuerCol:3, amtCol:7 },
+  'cd-primary':   { label:'CD Primary',   type:'cd', issuerCol:3, amtCol:7 },
+  'cd-secondary': { label:'CD Secondary', type:'cd', issuerCol:2, amtCol:6 },
+};
+
+const COLUMNS = {
+  'cp-primary':   ['ISIN','ISIN Desc','Maturity','Issuer','Deal Date','Sett','Trades','Issue Amt (₹)','Min Price','Max Price','Min Yield%','Max Yield%','WAP','WAY%'],
+  'cp-secondary': ['ISIN','ISIN Desc','Maturity','Issuer','Deal Date','Sett','Trades','Trade Amt (₹)','Min Price','Max Price','Min Yield%','Max Yield%','WAP','WAY%'],
+  'cd-primary':   ['ISIN','ISIN Desc','Maturity','Issuer','Deal Date','Sett','Trades','Issue Amt (₹)','Min Price','Max Price','Min Yield%','Max Yield%','WAP','WAY%'],
+  'cd-secondary': ['ISIN','Issuer','Maturity','Deal Date','Sett','Trades','Trade Amt (₹)','Min Price','Max Price','Min Yield%','Max Yield%','WAP','WAY%'],
+};
 
 // ─── State ───────────────────────────────────────────────────
+let currentInstrument = 'cp-primary';
 let allRows = [], filtered = [], sortCol = -1, sortAsc = true, page = 0;
+let tabData = { 'cp-primary':[], 'cp-secondary':[], 'cd-primary':[], 'cd-secondary':[] };
+
+// ─── Tab switching ────────────────────────────────────────────
+function switchTab(instrument, el) {
+  currentInstrument = instrument;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+
+  // Show NCD info on CD tabs
+  const isCD = instrument.startsWith('cd');
+  document.getElementById('ncd-info').className = 'info-card' + (isCD ? ' show' : '');
+
+  // Update metric colours
+  const type = INSTRUMENTS[instrument].type;
+  document.getElementById('m-box-issuers').className = 'metric hi-' + type;
+  document.getElementById('m-box-amount').className  = 'metric hi-' + type;
+
+  // Restore cached data for this tab or fetch fresh
+  if (tabData[instrument].length) {
+    allRows = tabData[instrument];
+    page = 0; sortCol = -1; sortAsc = true;
+    buildHeader();
+    buildMetrics(fromInputVal(document.getElementById('date-from').value),
+                 fromInputVal(document.getElementById('date-to').value));
+    applyFilter();
+    setStatus('ok', allRows.length + ' records');
+  } else {
+    fetchData();
+  }
+}
 
 // ─── IST helpers ─────────────────────────────────────────────
-function istNow() {
-  return new Date(Date.now() + 5.5 * 60 * 60 * 1000);
-}
+function istNow()        { return new Date(Date.now() + 5.5*60*60*1000); }
 function isBusinessHours() {
-  const now = istNow();
-  const day  = now.getUTCDay();   // 0=Sun … 6=Sat
-  const hour = now.getUTCHours();
-  return day >= 1 && day <= 5 && hour >= BIZ_START && hour < BIZ_END;
+  const n = istNow(); const day = n.getUTCDay(); const h = n.getUTCHours();
+  return day>=1 && day<=5 && h>=BIZ_START && h<BIZ_END;
 }
-function maxDays() { return isBusinessHours() ? MAX_BIZ : MAX_AFTER; }
-function toInputVal(d) {
-  // Returns YYYY-MM-DD for <input type="date">
-  const dd = String(d.getUTCDate()).padStart(2,'0');
-  const mm = String(d.getUTCMonth()+1).padStart(2,'0');
+function maxDays()       { return isBusinessHours() ? MAX_BIZ : MAX_AFTER; }
+function toInputVal(d)   {
+  if (!d) return '';
+  const dd=String(d.getUTCDate()).padStart(2,'0'), mm=String(d.getUTCMonth()+1).padStart(2,'0');
   return `${d.getUTCFullYear()}-${mm}-${dd}`;
 }
-function fromInputVal(str) {
-  // str = YYYY-MM-DD → Date (UTC midnight)
-  if (!str) return null;
-  const [y,m,d] = str.split('-').map(Number);
-  return new Date(Date.UTC(y, m-1, d));
+function fromInputVal(s) {
+  if (!s) return null;
+  const [y,m,d] = s.split('-').map(Number);
+  return new Date(Date.UTC(y,m-1,d));
 }
-function fmtDisplay(d) {
-  return d.toLocaleDateString('en-IN', {day:'2-digit', month:'short', year:'numeric', timeZone:'UTC'});
-}
-function diffDays(a, b) {
-  return Math.round((b - a) / 86400000);
-}
-// API expects DD/MM/YYYY
-function toApiDate(d) {
-  const dd = String(d.getUTCDate()).padStart(2,'0');
-  const mm = String(d.getUTCMonth()+1).padStart(2,'0');
+function fmtDisp(d)      { return d.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric',timeZone:'UTC'}); }
+function diffDays(a,b)   { return Math.round((b-a)/86400000); }
+function toApiDate(d)    {
+  const dd=String(d.getUTCDate()).padStart(2,'0'), mm=String(d.getUTCMonth()+1).padStart(2,'0');
   return `${dd}/${mm}/${d.getUTCFullYear()}`;
 }
 
-// ─── Init date pickers ────────────────────────────────────────
+// ─── Date init ───────────────────────────────────────────────
 function initDates() {
-  const today = istNow();
-  const todayStr = toInputVal(today);
-  document.getElementById('date-to').value   = todayStr;
-  document.getElementById('date-to').max     = todayStr;
-  document.getElementById('date-from').value = todayStr;
-  document.getElementById('date-from').max   = todayStr;
+  const today = istNow(), s = toInputVal(today);
+  ['date-from','date-to'].forEach(id => {
+    document.getElementById(id).value = s;
+    document.getElementById(id).max   = s;
+  });
   updateRangeHint();
 }
-
-function resetDates() {
-  initDates();
-  fetchData();
-}
+function resetDates() { initDates(); fetchData(); }
 
 function onDateChange() {
   const fromEl = document.getElementById('date-from');
@@ -353,263 +404,252 @@ function onDateChange() {
   const max    = maxDays();
   const fromD  = fromInputVal(fromEl.value);
   const toD    = fromInputVal(toEl.value);
-
   if (fromD && toD) {
-    // Clamp: from must not be after to
-    if (fromD > toD) { fromEl.value = toEl.value; }
-
-    // Clamp: range must not exceed max days
-    const from2 = fromInputVal(fromEl.value);
-    const to2   = fromInputVal(toEl.value);
-    if (diffDays(from2, to2) > max) {
-      // Push from date forward so range = max
-      const clamped = new Date(to2.getTime() - max * 86400000);
-      fromEl.value = toInputVal(clamped);
-    }
+    if (fromD > toD) fromEl.value = toEl.value;
+    const from2 = fromInputVal(fromEl.value), to2 = fromInputVal(toEl.value);
+    if (diffDays(from2, to2) > max) fromEl.value = toInputVal(new Date(to2.getTime()-max*86400000));
   }
   updateRangeHint();
 }
 
 function updateRangeHint() {
-  const biz     = isBusinessHours();
-  const max     = maxDays();
-  const fromD   = fromInputVal(document.getElementById('date-from').value);
-  const toD     = fromInputVal(document.getElementById('date-to').value);
-
-  // Mode chip
-  const modeChip  = document.getElementById('mode-chip');
-  const modeLabel = document.getElementById('mode-label');
-  if (biz) {
-    modeChip.className  = 'hint-chip active';
-    modeLabel.textContent = '🕐 Business hours (IST) — 7-day limit';
-  } else {
-    modeChip.className  = 'hint-chip ok';
-    modeLabel.textContent = '🌙 After hours (IST) — 30-day limit';
-  }
-
-  // Range chip
-  const rangeChip  = document.getElementById('range-chip');
-  const rangeLabel = document.getElementById('range-label');
-  const limitChip  = document.getElementById('limit-chip');
-  const limitLabel = document.getElementById('limit-label');
-
+  const biz = isBusinessHours(), max = maxDays();
+  const modeChip = document.getElementById('mode-chip');
+  modeChip.className = 'hint-chip ' + (biz ? 'active' : 'ok');
+  document.getElementById('mode-label').textContent = biz
+    ? '🕐 Business hours — 7-day limit' : '🌙 After hours — 30-day limit';
+  const fromD = fromInputVal(document.getElementById('date-from').value);
+  const toD   = fromInputVal(document.getElementById('date-to').value);
+  const rangeChip = document.getElementById('range-chip');
+  const limitChip = document.getElementById('limit-chip');
   if (fromD && toD) {
     const days = diffDays(fromD, toD);
-    rangeLabel.textContent = `${fmtDisplay(fromD)} → ${fmtDisplay(toD)}`;
-    rangeChip.className = days > max ? 'hint-chip warn' : 'hint-chip ok';
-    limitLabel.textContent = `${days} day${days!==1?'s':''} of ${max} max`;
-    limitChip.className = days > max ? 'hint-chip warn' : 'hint-chip ok';
+    document.getElementById('range-label').textContent = `${fmtDisp(fromD)} → ${fmtDisp(toD)}`;
+    rangeChip.className = 'hint-chip ' + (days > max ? 'warn' : 'ok');
+    document.getElementById('limit-label').textContent = `${days}d of ${max}d max`;
+    limitChip.className = 'hint-chip ' + (days > max ? 'warn' : 'ok');
   } else {
-    rangeLabel.textContent = 'Select a date range';
+    document.getElementById('range-label').textContent = 'Select a range';
     rangeChip.className = 'hint-chip';
-    limitLabel.textContent = `Max ${max} days`;
+    document.getElementById('limit-label').textContent = `Max ${max} days`;
     limitChip.className = 'hint-chip';
   }
 }
-
-// Refresh hint every minute in case hour crosses biz boundary
 setInterval(updateRangeHint, 60000);
 
-// ─── Fetch from API ───────────────────────────────────────────
+// ─── Fetch ────────────────────────────────────────────────────
 async function fetchData() {
   const fromD = fromInputVal(document.getElementById('date-from').value);
   const toD   = fromInputVal(document.getElementById('date-to').value);
-
-  if (!fromD || !toD) { showBanner('Please select both From and To dates.', ''); return; }
-
+  if (!fromD || !toD) { showBanner('Please select both From and To dates.'); return; }
   const max = maxDays();
   if (diffDays(fromD, toD) > max) {
-    showBanner(`Date range exceeds the ${max}-day limit for ${isBusinessHours() ? 'business' : 'after-business'} hours.`,
-      'Please reduce the range and try again.');
+    showBanner(`Range exceeds ${max}-day limit for ${isBusinessHours()?'business':'after-business'} hours.`);
     return;
   }
-  if (fromD > toD) { showBanner('From date must be on or before To date.', ''); return; }
-
   hideBanner();
   setStatus('fetching', 'Loading…');
-  document.getElementById('fetch-btn').disabled    = true;
-  document.getElementById('refresh-btn').disabled  = true;
+  setBtnsDisabled(true);
   document.getElementById('fetch-icon').classList.add('spin');
   document.getElementById('refresh-icon').classList.add('spin');
 
-  // Show loading in table
+  const cols = COLUMNS[currentInstrument] || [];
   document.getElementById('tbody').innerHTML =
-    '<tr><td colspan="14"><div class="state"><div class="loader spin"></div>' +
-    '<p>Fetching data for ' + fmtDisplay(fromD) + ' → ' + fmtDisplay(toD) + '…</p></div></td></tr>';
+    `<tr><td colspan="${cols.length}"><div class="state"><div class="loader spin"></div>` +
+    `<p>Fetching ${INSTRUMENTS[currentInstrument].label} · ${fmtDisp(fromD)} → ${fmtDisp(toD)}…</p></div></td></tr>`;
 
   try {
-    const url = `/api/ftrac?from=${toApiDate(fromD)}&to=${toApiDate(toD)}`;
+    const url = `/api/ftrac?instrument=${currentInstrument}&from=${toApiDate(fromD)}&to=${toApiDate(toD)}`;
     const res  = await fetch(url, { signal: AbortSignal.timeout(30000) });
     if (!res.ok) throw new Error('Server error: HTTP ' + res.status);
     const html = await res.text();
     const rows = parseHTMLTable(html);
-    if (!rows.length) throw new Error('No table data returned — FTRAC may have returned an empty result for this date range.');
+    if (!rows.length) throw new Error('No data returned — FTRAC may have returned empty results for this date range.');
 
     allRows = rows;
+    tabData[currentInstrument] = rows;
+    // Update tab badge
+    document.getElementById('badge-' + currentInstrument).textContent = rows.length.toLocaleString('en-IN');
     page = 0; sortCol = -1; sortAsc = true;
-    clearSortArrows();
+    buildHeader();
     buildMetrics(fromD, toD);
     applyFilter();
     document.getElementById('fetch-time').textContent =
       'Updated ' + new Date().toLocaleTimeString('en-IN', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
-    setStatus('ok', rows.length + ' records');
+    setStatus('ok', rows.length.toLocaleString('en-IN') + ' records');
   } catch (err) {
     setStatus('error', 'Error');
     showBanner('Could not load data.', err.message);
     if (!allRows.length) {
+      const cols = COLUMNS[currentInstrument] || [];
       document.getElementById('tbody').innerHTML =
-        '<tr><td colspan="14"><div class="state">' +
-        '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>' +
-        '<p>Failed to fetch data</p><small>' + esc(err.message) + '</small></div></td></tr>';
+        `<tr><td colspan="${cols.length}"><div class="state">` +
+        `<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>` +
+        `<p>Failed to fetch data</p><small>${esc(err.message)}</small></div></td></tr>`;
     }
   } finally {
-    document.getElementById('fetch-btn').disabled   = false;
-    document.getElementById('refresh-btn').disabled = false;
+    setBtnsDisabled(false);
     document.getElementById('fetch-icon').classList.remove('spin');
     document.getElementById('refresh-icon').classList.remove('spin');
   }
 }
 
-// ─── Table parsing ────────────────────────────────────────────
+// ─── Table parse ─────────────────────────────────────────────
 function parseHTMLTable(html) {
-  const parser = new DOMParser();
-  const doc    = parser.parseFromString(html, 'text/html');
+  const doc = new DOMParser().parseFromString(html, 'text/html');
   const tables = [...doc.querySelectorAll('table')];
   if (!tables.length) return [];
-  const tbl = tables.reduce((best, t) =>
-    t.querySelectorAll('tr').length > best.querySelectorAll('tr').length ? t : best
-  );
+  const tbl = tables.reduce((b,t) => t.querySelectorAll('tr').length > b.querySelectorAll('tr').length ? t : b);
   const rows = [];
-  tbl.querySelectorAll('tr').forEach((tr, i) => {
-    if (i === 0) return;
-    const cells = [...tr.querySelectorAll('td, th')];
+  tbl.querySelectorAll('tr').forEach((tr,i) => {
+    if (i===0) return;
+    const cells = [...tr.querySelectorAll('td,th')];
     if (cells.length >= 4) rows.push(cells.map(c => c.textContent.trim()));
   });
   return rows;
 }
 
-// ─── Metrics ──────────────────────────────────────────────────
-function buildMetrics(fromD, toD) {
-  const total    = allRows.length;
-  const issuers  = new Set(allRows.map(r => r[ISSUER_COL])).size;
-  const amounts  = allRows.map(r => num(r[7])).filter(n => !isNaN(n));
-  const sum      = amounts.reduce((s, n) => s + n, 0);
-  set('m-total',   total.toLocaleString('en-IN'));
-  set('m-issuers', issuers.toLocaleString('en-IN'));
-  set('m-amount',  (sum / 1e7).toFixed(2));
-  set('m-date',    fmtDisplay(fromD) + '\n' + fmtDisplay(toD));
+// ─── Header ──────────────────────────────────────────────────
+function buildHeader() {
+  const cols = COLUMNS[currentInstrument] || [];
+  const numCols = new Set([6,7,8,9,10,11,12,13]);
+  document.getElementById('thead-row').innerHTML = cols.map((h,i) =>
+    `<th onclick="sortBy(${i})" ${numCols.has(i)?'class="r"':''} id="th${i}">${h} <span id="s${i}"></span></th>`
+  ).join('');
 }
 
-// ─── Search + filter ──────────────────────────────────────────
-function onSearch() { page = 0; applyFilter(); }
+// ─── Metrics ─────────────────────────────────────────────────
+function buildMetrics(fromD, toD) {
+  const cfg    = INSTRUMENTS[currentInstrument];
+  const total  = allRows.length;
+  const issuers = new Set(allRows.map(r => r[cfg.issuerCol])).size;
+  const amounts = allRows.map(r => num(r[cfg.amtCol])).filter(n => !isNaN(n));
+  const sum    = amounts.reduce((s,n) => s+n, 0);
+  set('m-total',   total.toLocaleString('en-IN'));
+  set('m-issuers', issuers.toLocaleString('en-IN'));
+  set('m-amount',  (sum/1e7).toFixed(2));
+  set('m-date',    fromD && toD ? fmtDisp(fromD)+'\n'+fmtDisp(toD) : '—');
+  // Colour the right metric boxes
+  const type = cfg.type;
+  document.getElementById('m-box-issuers').className = 'metric hi-'+type;
+  document.getElementById('m-box-amount').className  = 'metric hi-'+type;
+}
+
+// ─── Search ───────────────────────────────────────────────────
+function onSearch() { page=0; applyFilter(); }
 
 function applyFilter() {
-  const q = document.getElementById('search-input').value.trim().toLowerCase();
-  filtered = q ? allRows.filter(r => r[ISSUER_COL].toLowerCase().includes(q)) : [...allRows];
+  const cfg = INSTRUMENTS[currentInstrument];
+  const q   = document.getElementById('search-input').value.trim().toLowerCase();
+  filtered  = q ? allRows.filter(r => (r[cfg.issuerCol]||'').toLowerCase().includes(q)) : [...allRows];
   if (sortCol >= 0) {
-    filtered.sort((a, b) => {
-      const na = num(a[sortCol]), nb = num(b[sortCol]);
-      if (!isNaN(na) && !isNaN(nb)) return sortAsc ? na - nb : nb - na;
-      return sortAsc ? a[sortCol].localeCompare(b[sortCol]) : b[sortCol].localeCompare(a[sortCol]);
+    filtered.sort((a,b) => {
+      const na=num(a[sortCol]), nb=num(b[sortCol]);
+      if (!isNaN(na)&&!isNaN(nb)) return sortAsc ? na-nb : nb-na;
+      return sortAsc ? (a[sortCol]||'').localeCompare(b[sortCol]||'')
+                     : (b[sortCol]||'').localeCompare(a[sortCol]||'');
     });
   }
   const count = filtered.length;
-  set('result-meta', q
-    ? count + ' match' + (count !== 1 ? 'es' : '') + ' of ' + allRows.length + ' records'
-    : allRows.length + ' records');
+  set('result-meta', q ? `${count} match${count!==1?'es':''} of ${allRows.length}` : `${allRows.length} records`);
   renderTable();
 }
 
 // ─── Sort ─────────────────────────────────────────────────────
 function sortBy(col) {
-  if (sortCol === col) sortAsc = !sortAsc; else { sortCol = col; sortAsc = true; }
-  clearSortArrows();
-  const ths = document.querySelectorAll('thead th');
-  if (ths[col]) ths[col].classList.add('sorted');
-  const s = document.getElementById('s' + col);
-  if (s) s.textContent = sortAsc ? '↑' : '↓';
-  page = 0; applyFilter();
-}
-function clearSortArrows() {
-  document.querySelectorAll('thead th').forEach(th => th.classList.remove('sorted'));
-  for (let i = 0; i < 14; i++) { const s = document.getElementById('s'+i); if(s) s.textContent = ''; }
+  if (sortCol===col) sortAsc=!sortAsc; else { sortCol=col; sortAsc=true; }
+  (COLUMNS[currentInstrument]||[]).forEach((_,i) => {
+    const th = document.getElementById('th'+i);
+    const s  = document.getElementById('s'+i);
+    if (th) th.classList.toggle('sorted', i===col);
+    if (s)  s.textContent = i===col ? (sortAsc?'↑':'↓') : '';
+  });
+  page=0; applyFilter();
 }
 
 // ─── Render ───────────────────────────────────────────────────
 function renderTable() {
   const q     = document.getElementById('search-input').value.trim().toLowerCase();
-  const start = page * PAGE_SIZE;
-  const slice = filtered.slice(start, start + PAGE_SIZE);
+  const cols  = COLUMNS[currentInstrument] || [];
+  const cfg   = INSTRUMENTS[currentInstrument];
+  const start = page*PAGE_SIZE;
+  const slice = filtered.slice(start, start+PAGE_SIZE);
   const tbody = document.getElementById('tbody');
+  const type  = cfg.type;
 
   if (!slice.length) {
-    tbody.innerHTML = '<tr><td colspan="14"><div class="state">' +
-      '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>' +
-      '<p>' + (q ? 'No issuers matching <strong style="color:var(--warn)">"' + esc(q) + '"</strong>' : 'No records') + '</p>' +
-      (q ? '<small>Try a shorter term or clear to see all records.</small>' : '') +
-      '</div></td></tr>';
+    tbody.innerHTML = `<tr><td colspan="${cols.length}"><div class="state">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <p>${q ? 'No issuers matching <strong style="color:var(--warn)">"'+esc(q)+'"</strong>' : 'No records'}</p>
+      ${q ? '<small>Try a shorter term or clear to see all records.</small>' : ''}
+    </div></td></tr>`;
     return;
   }
 
+  // Generic column renderer — colour key columns by instrument type
   tbody.innerHTML = slice.map(r => {
-    const issuer = q
-      ? esc(r[ISSUER_COL]).replace(new RegExp('(' + escReg(esc(q)) + ')', 'gi'), '<mark>$1</mark>')
-      : esc(r[ISSUER_COL]);
-    return `<tr>
-      <td class="mono">${esc(r[0])}</td>
-      <td style="max-width:220px;white-space:normal;font-size:12px;color:var(--muted);line-height:1.4">${esc(r[1]||'')}</td>
-      <td class="mono">${esc(r[2]||'')}</td>
-      <td class="issuer">${issuer}</td>
-      <td class="mono">${esc(r[4]||'')}</td>
-      <td style="color:var(--muted);font-size:12px">${esc(r[5]||'')}</td>
-      <td class="r">${esc(r[6]||'')}</td>
-      <td class="amt">${fmtAmt(r[7])}</td>
-      <td class="r">${fmt4(r[8])}</td>
-      <td class="r">${fmt4(r[9])}</td>
-      <td class="yield">${fmt4(r[10])}</td>
-      <td class="yield">${fmt4(r[11])}</td>
-      <td class="wap">${fmt4(r[12])}</td>
-      <td class="way">${fmt4(r[13])}</td>
-    </tr>`;
+    const cells = cols.map((col,i) => {
+      const v   = r[i] || '';
+      const ev  = esc(v);
+      const n   = num(v);
+      // Issuer column
+      if (i === cfg.issuerCol) {
+        const hi = q ? ev.replace(new RegExp('('+escReg(esc(q))+')','gi'),'<mark>$1</mark>') : ev;
+        return `<td class="issuer">${hi}</td>`;
+      }
+      // Amount column
+      if (i === cfg.amtCol)  return `<td class="amt ${type}">${isNaN(n)?ev:'₹\u202f'+(n/1e7).toFixed(2)+' Cr'}</td>`;
+      // Yield columns (Min/Max Yield)
+      const cl = col.toLowerCase();
+      if (cl.includes('yield') && !cl.includes('way')) return `<td class="yield">${isNaN(n)?ev:n.toFixed(4)}</td>`;
+      if (cl.includes('way'))  return `<td class="way">${isNaN(n)?ev:n.toFixed(4)}</td>`;
+      if (cl.includes('wap'))  return `<td class="wap">${isNaN(n)?ev:n.toFixed(4)}</td>`;
+      if (cl.includes('price')) return `<td class="r">${isNaN(n)?ev:n.toFixed(4)}</td>`;
+      if (!isNaN(n) && v!=='') return `<td class="r">${n.toLocaleString('en-IN')}</td>`;
+      // ISIN / date / other mono fields
+      if (i===0 || cl.includes('date') || cl.includes('sett') || cl.includes('maturity'))
+        return `<td class="mono">${ev}</td>`;
+      return `<td>${ev}</td>`;
+    });
+    return `<tr>${cells.join('')}</tr>`;
   }).join('');
 
   const total = filtered.length;
   const pager = document.getElementById('pager');
-  pager.className = total > PAGE_SIZE ? 'pager show' : 'pager';
-  set('pager-info', `Showing ${start+1}–${Math.min(start+PAGE_SIZE, total)} of ${total.toLocaleString('en-IN')}`);
-  document.getElementById('prev-btn').disabled = page === 0;
-  document.getElementById('next-btn').disabled = (page+1)*PAGE_SIZE >= total;
+  pager.className = total>PAGE_SIZE ? 'pager show' : 'pager';
+  set('pager-info', `Showing ${start+1}–${Math.min(start+PAGE_SIZE,total)} of ${total.toLocaleString('en-IN')}`);
+  document.getElementById('prev-btn').disabled = page===0;
+  document.getElementById('next-btn').disabled = (page+1)*PAGE_SIZE>=total;
 }
 
-function prevPage() { if (page > 0)                         { page--; renderTable(); } }
-function nextPage() { if ((page+1)*PAGE_SIZE < filtered.length) { page++; renderTable(); } }
+function prevPage() { if (page>0)                           { page--; renderTable(); } }
+function nextPage() { if ((page+1)*PAGE_SIZE<filtered.length) { page++; renderTable(); } }
 
-// ─── Utilities ────────────────────────────────────────────────
-function num(v)     { return parseFloat(String(v||'').replace(/,/g, '')); }
-function fmtAmt(v)  { const n=num(v); return isNaN(n) ? esc(String(v||'')) : '₹\u202f'+(n/1e7).toFixed(2)+' Cr'; }
-function fmt4(v)    { const n=num(v); return isNaN(n) ? esc(String(v||'')) : n.toFixed(4); }
-function esc(s)     { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function escReg(s)  { return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'); }
-function set(id,v)  { const el=document.getElementById(id); if(el) el.textContent=v; }
-
-function setStatus(state, label) {
-  const dot = document.getElementById('dot');
-  dot.className = 'dot' + (state==='ok' ? '' : ' '+state);
-  set('status-label', label);
+// ─── Utils ────────────────────────────────────────────────────
+function num(v)    { return parseFloat(String(v||'').replace(/,/g,'')); }
+function esc(s)    { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function escReg(s) { return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'); }
+function set(id,v) { const el=document.getElementById(id); if(el) el.textContent=v; }
+function setStatus(state,label) {
+  document.getElementById('dot').className = 'dot'+(state==='ok'?'':' '+state);
+  set('status-label',label);
 }
-function showBanner(msg, detail) {
-  set('error-msg', msg); set('error-detail', detail||'');
+function showBanner(msg,detail) {
+  set('error-msg',msg); set('error-detail',detail||'');
   document.getElementById('error-banner').classList.add('show');
 }
 function hideBanner() { document.getElementById('error-banner').classList.remove('show'); }
+function setBtnsDisabled(v) {
+  document.getElementById('fetch-btn').disabled   = v;
+  document.getElementById('refresh-btn').disabled = v;
+}
 
 // ─── Boot ─────────────────────────────────────────────────────
 initDates();
+buildHeader();
 fetchData();
-
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/sw.js').catch(() => {});
-}
+setInterval(updateRangeHint, 60000);
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(()=>{});
 </script>
 </body>
 </html>
