@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0f172a">
+<title>FTRAC · My Accounts</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='16' fill='%230f172a'/><text y='68' x='12' font-size='60' font-family='monospace' fill='%2338bdf8'>F</text></svg>">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{--bg:#0f172a;--surface:#1e293b;--surface2:#263248;--border:#334155;--border2:#475569;--text:#f1f5f9;--muted:#94a3b8;--accent:#38bdf8;--success:#34d399;--warn:#fbbf24;--danger:#f87171;--purple:#a78bfa;--font:'DM Mono','Fira Code',monospace;--sans:'DM Sans',system-ui,sans-serif;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh;font-size:14px;}
+header{background:rgba(30,41,59,.96);backdrop-filter:blur(8px);border-bottom:1px solid var(--border);padding:0 1.5rem;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;}
+.logo{display:flex;align-items:center;gap:10px;}
+.logo-badge{background:var(--accent);color:#0c1a2e;font-family:var(--font);font-size:11px;font-weight:500;padding:3px 9px;border-radius:5px;letter-spacing:.06em;}
+.logo-text .title{font-size:14px;font-weight:600;}
+.logo-text .sub{font-size:11px;color:var(--muted);}
+.nav-links{display:flex;gap:4px;}
+.nav-link{padding:6px 14px;border-radius:7px;font-size:13px;font-weight:500;cursor:pointer;border:none;background:transparent;color:var(--muted);text-decoration:none;transition:all .15s;display:flex;align-items:center;gap:6px;}
+.nav-link:hover{color:var(--text);background:var(--surface2);}
+.nav-link.active{background:var(--surface2);color:var(--accent);}
+.sync-pill{display:flex;align-items:center;gap:6px;background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:4px 10px;font-size:11px;color:var(--muted);}
+.sync-dot{width:7px;height:7px;border-radius:50%;background:var(--success);box-shadow:0 0 6px var(--success);}
+.sync-dot.saving{background:var(--warn);box-shadow:0 0 6px var(--warn);animation:blink 1s infinite;}
+.sync-dot.error{background:var(--danger);box-shadow:none;animation:none;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+main{max-width:1440px;margin:0 auto;padding:1.25rem 1.5rem;}
+.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:1.25rem;}
+.four-col{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:1.25rem;}
+.scard{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:.85rem 1rem;}
+.scard.hi{border-color:rgba(56,189,248,.3);}
+.sc-label{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:5px;}
+.sc-val{font-family:var(--font);font-size:20px;font-weight:500;}
+.sc-val.accent{color:var(--accent);}
+.sc-sub{font-size:10px;color:var(--muted);margin-top:2px;}
+.bps{font-size:11px;padding:2px 7px;border-radius:20px;margin-left:6px;font-family:var(--sans);font-weight:600;}
+.bps-u{background:rgba(248,113,113,.15);color:#f87171;}
+.bps-d{background:rgba(52,211,153,.15);color:#34d399;}
+.two-col{display:grid;grid-template-columns:280px 1fr;gap:14px;align-items:start;}
+@media(max-width:900px){.two-col{grid-template-columns:1fr;}.four-col{grid-template-columns:1fr 1fr;}}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.1rem;}
+.card-hdr{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:.9rem;display:flex;align-items:center;justify-content:space-between;}
+.card-hdr .act{font-size:11px;font-weight:400;text-transform:none;letter-spacing:0;color:var(--accent);cursor:pointer;}
+.card-hdr .act:hover{opacity:.8;}
+.wi{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid rgba(51,65,85,.5);}
+.wi:last-child{border-bottom:none;}
+.wi-left{flex:1;min-width:0;}
+.wi-name{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.wi-meta{display:flex;align-items:center;gap:5px;margin-top:3px;}
+.ind-tag{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:500;cursor:pointer;border:1px solid transparent;}
+.wi-rate{text-align:right;flex-shrink:0;}
+.wi-way{font-family:var(--font);font-size:14px;font-weight:500;}
+.wi-chg{font-size:10px;font-family:var(--font);margin-top:1px;}
+.chg-u{color:var(--danger);}
+.chg-d{color:var(--success);}
+.chg-f{color:var(--muted);}
+.wi-rm{background:transparent;border:none;color:var(--muted);cursor:pointer;padding:3px 5px;border-radius:4px;font-size:13px;line-height:1;}
+.wi-rm:hover{color:var(--danger);background:rgba(248,113,113,.1);}
+.add-row{display:flex;gap:8px;margin-top:10px;}
+.ac-wrap{position:relative;flex:1;}
+.add-input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:7px 10px;color:var(--text);font-size:13px;font-family:var(--sans);outline:none;}
+.add-input:focus{border-color:var(--accent);}
+.add-input::placeholder{color:var(--muted);}
+.ac-list{position:absolute;top:100%;left:0;right:0;background:var(--surface2);border:1px solid var(--border);border-radius:7px;margin-top:3px;z-index:100;max-height:180px;overflow-y:auto;}
+.ac-item{padding:8px 12px;font-size:13px;cursor:pointer;color:var(--text);}
+.ac-item:hover{background:var(--bg);}
+.ac-item small{color:var(--muted);font-size:11px;display:block;margin-top:1px;}
+.mini-btn{background:var(--accent);color:#0c1a2e;border:none;border-radius:7px;padding:7px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--sans);white-space:nowrap;}
+.mini-btn:hover{opacity:.88;}
+.chart-wrap{position:relative;height:220px;}
+.chart-empty{display:flex;align-items:center;justify-content:center;height:100%;color:var(--muted);font-size:13px;text-align:center;flex-direction:column;gap:8px;}
+.legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;}
+.leg-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted);}
+.leg-dot{width:8px;height:8px;border-radius:50%;}
+.hm-grid{display:grid;gap:3px;overflow-x:auto;}
+.hm-r{display:flex;gap:3px;align-items:center;}
+.hm-lbl{font-size:11px;color:var(--muted);min-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex-shrink:0;}
+.hm-hdr{height:24px;flex:1;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--muted);min-width:52px;}
+.hm-cell{height:24px;border-radius:4px;flex:1;display:flex;align-items:center;justify-content:center;font-size:10px;font-family:var(--font);font-weight:500;min-width:52px;}
+.hlo{background:rgba(52,211,153,.2);color:#34d399;}
+.hmid{background:rgba(251,191,36,.2);color:#fbbf24;}
+.hhi{background:rgba(251,146,60,.2);color:#fb923c;}
+.hvhi{background:rgba(248,113,113,.25);color:#f87171;}
+.hna{background:var(--surface2);color:var(--muted);}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:300;display:flex;align-items:center;justify-content:center;}
+.modal{background:var(--surface);border:1px solid var(--border2);border-radius:14px;padding:1.5rem;width:380px;max-width:90vw;}
+.modal h3{font-size:15px;font-weight:600;margin-bottom:.5rem;}
+.modal p{font-size:13px;color:var(--muted);margin-bottom:1rem;line-height:1.6;}
+.modal-row{display:flex;gap:8px;margin-top:.75rem;}
+.modal-input{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:8px 11px;color:var(--text);font-size:13px;font-family:var(--sans);outline:none;}
+.modal-input:focus{border-color:var(--accent);}
+.ghost-btn{background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:7px;padding:7px 12px;font-size:12px;font-family:var(--sans);cursor:pointer;}
+.ghost-btn:hover{border-color:var(--border2);color:var(--text);}
+.no-data{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:3rem 2rem;display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;margin-bottom:1.25rem;}
+.no-data p{font-size:13px;color:var(--muted);max-width:360px;line-height:1.6;}
+.footer{display:flex;justify-content:space-between;font-size:11px;color:var(--border2);margin-top:1rem;}
+.footer a{color:var(--border2);text-decoration:none;}
+.footer a:hover{color:var(--accent);}
+.spin{animation:spin 1s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">
+    <span class="logo-badge">FTRAC</span>
+    <div class="logo-text"><div class="title">Money Market Data</div><div class="sub">CCIL F-TRAC Platform</div></div>
+  </div>
+  <nav class="nav-links">
+    <a class="nav-link" href="/index.html">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Data
+    </a>
+    <a class="nav-link active" href="/accounts.html">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>My accounts
+    </a>
+    <a class="nav-link" href="/guidance.html">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Guidance
+    </a>
+  </nav>
+  <div class="sync-pill">
+    <span class="sync-dot" id="sync-dot"></span>
+    <span id="sync-label">Loading…</span>
+  </div>
+</header>
+
+<main>
+  <div class="four-col">
+    <div class="scard hi"><div class="sc-label">Watched accounts</div><div class="sc-val accent" id="sc-count">—</div><div class="sc-sub" id="sc-ind">—</div></div>
+    <div class="scard"><div class="sc-label">My avg WAY</div><div class="sc-val" id="sc-myway">—</div><div class="sc-sub" id="sc-mybps"></div></div>
+    <div class="scard"><div class="sc-label">Market avg WAY</div><div class="sc-val" id="sc-mktway">—</div><div class="sc-sub">all instruments</div></div>
+    <div class="scard"><div class="sc-label">Industries</div><div class="sc-val" id="sc-inds">—</div><div class="sc-sub">tracked sectors</div></div>
+  </div>
+
+  <div class="two-col">
+    <div class="card">
+      <div class="card-hdr">My watchlist <span class="act" onclick="saveWatchlist()">↑ Save</span></div>
+      <div id="wl-body"></div>
+      <div class="add-row">
+        <div class="ac-wrap">
+          <input class="add-input" id="add-input" placeholder="Type issuer name…" oninput="onAddInput()" onkeydown="onAddKey(event)" autocomplete="off">
+          <div class="ac-list" id="ac-list" style="display:none"></div>
+        </div>
+        <button class="mini-btn" onclick="addFromInput()">+ Add</button>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div class="card">
+        <div class="card-hdr">WAY% trend — watched issuers <span class="act" onclick="renderTrend()">↺</span></div>
+        <div class="chart-wrap" id="trend-wrap">
+          <div class="chart-empty">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity=".4"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            Fetch data on the Data page first
+          </div>
+        </div>
+        <div class="legend" id="trend-legend"></div>
+      </div>
+      <div class="card">
+        <div class="card-hdr">WAY% heatmap — issuer × date</div>
+        <div id="heatmap-wrap">
+          <div class="chart-empty" style="height:80px">Add issuers to watchlist to see heatmap</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <span id="footer-time"></span>
+    <span>Source: <a href="https://www.ftrac.co.in" target="_blank">CCIL F-TRAC ↗</a></span>
+  </div>
+</main>
+
+<div class="modal-overlay" id="ind-modal" style="display:none" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <h3>Edit industry tag</h3>
+    <p id="modal-issuer" style="font-weight:500;color:var(--text);margin-bottom:.25rem;font-size:14px"></p>
+    <p>Auto-detected: <strong id="modal-auto"></strong>. Type to override or clear to use auto-detected.</p>
+    <div class="modal-row">
+      <input class="modal-input" id="modal-input" placeholder="e.g. NBFC, Banking, PSU…" list="ind-datalist" autocomplete="off">
+      <datalist id="ind-datalist"></datalist>
+      <button class="ghost-btn" onclick="closeModal()">Cancel</button>
+      <button class="mini-btn" onclick="saveTag()">Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+Chart.defaults.color='#94a3b8';Chart.defaults.borderColor='#334155';Chart.defaults.font.family="'DM Sans',system-ui,sans-serif";
+const IMETA={'cp-primary':{ic:3,ac:7,wc:13,dc:4},'cp-secondary':{ic:3,ac:7,wc:13,dc:4},'cd-primary':{ic:3,ac:7,wc:13,dc:4},'cd-secondary':{ic:2,ac:6,wc:12,dc:3}};
+const COLORS=['#38bdf8','#a78bfa','#34d399','#fbbf24','#fb923c','#f472b6','#2dd4bf','#818cf8','#f87171','#60a5fa'];
+
+// ── State ─────────────────────────────────────────────────────
+let watchlist=[], trendChart=null, editingIssuer=null;
+
+// ── Persistence via /api/user ──────────────────────────────────
+async function loadPrefs(){
+  setSyncStatus('saving','Loading…');
+  try{
+    const [wlRes,_]=await Promise.all([
+      fetch('/api/user?key=watchlist'),
+      fetch('/api/user?key=thresholds') // preload for guidance page
+    ]);
+    const wlData=await wlRes.json();
+    watchlist=wlData.value||JSON.parse(localStorage.getItem('ftrac_watchlist')||'[]');
+    setSyncStatus('ok','Synced');
+  }catch(e){
+    watchlist=JSON.parse(localStorage.getItem('ftrac_watchlist')||'[]');
+    setSyncStatus('error','Offline — using local');
+  }
+  renderWatchlist();
+}
+
+async function saveWatchlist(){
+  setSyncStatus('saving','Saving…');
+  localStorage.setItem('ftrac_watchlist',JSON.stringify(watchlist));
+  try{
+    await fetch('/api/user',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({key:'watchlist',value:watchlist})});
+    setSyncStatus('ok','Saved');
+  }catch{setSyncStatus('error','Save failed');}
+}
+
+function setSyncStatus(state,label){
+  const d=document.getElementById('sync-dot');
+  d.className='sync-dot'+(state==='saving'?' saving':state==='error'?' error':'');
+  document.getElementById('sync-label').textContent=label;
+}
+
+// ── Industry auto-detect ───────────────────────────────────────
+function detectInd(name){
+  const n=name.toLowerCase();
+  if(/\b(nabard|nhai|ntpc|bhel|ongc|gail|sail|sidbi|exim|hudco|irfc|nhb|rec ltd|rec limited|power finance|npc\b|power grid|coal india|bharat petroleum|hindustan petroleum|indian oil|oil india|fci\b|food corp)\b/.test(n))return'PSU / Govt';
+  if(/\b(bank|banking)\b/.test(n)&&!/finance bank/.test(n))return'Banking';
+  if(/housing finance|home finance|gruh|can fin|repco|aavas|aptus|dewan|pnb housing|lic housing|indiabulls housing|godrej housing/.test(n))return'Housing Finance';
+  if(/\b(insurance|lic\b)\b/.test(n))return'Insurance';
+  if(/\b(finance|capital|finserv|fincorp|finvest|lending|leasing|muthoot|manappuram|shriram|mahindra fin|aditya birla fin|tata capital|piramal|l&t fin|chola|cholamandalam|sundaram fin|hero fincorp|fullerton|iifl|jm fin|bajaj fin)\b/.test(n))return'NBFC';
+  if(/\b(pharma|pharmaceutical|hospital|healthcare|medic)\b/.test(n))return'Healthcare';
+  if(/\b(tech|software|\bit\b|infosys|wipro|hcl|tcs|cognizant|infotech)\b/.test(n))return'Technology';
+  if(/\b(realty|real estate|construction|builders|developer)\b/.test(n))return'Real Estate';
+  if(/\b(road|highway|airport|port|renewable|solar|wind|transmission|infra)\b/.test(n))return'Infrastructure';
+  if(/\b(steel|metal|mining|aluminium|zinc|copper)\b/.test(n))return'Metals & Mining';
+  if(/\b(petroleum|petro|refinery|chemicals|fertilizer|agro)\b/.test(n))return'Oil & Chemicals';
+  if(/\b(telecom|mobile|communications)\b/.test(n))return'Telecom';
+  if(/\b(auto|automobile|tyre|motors|vehicles|maruti|hero moto|tvs motor)\b/.test(n))return'Auto';
+  return'Manufacturing';
+}
+function getInd(issuer){const w=watchlist.find(x=>x.issuer===issuer);return(w&&w.indOverride)||detectInd(issuer);}
+
+// ── Industry colour ────────────────────────────────────────────
+const IND_COLORS={
+  'Banking':'#38bdf8','NBFC':'#a78bfa','PSU / Govt':'#34d399',
+  'Manufacturing':'#fbbf24','Housing Finance':'#fb923c','Insurance':'#f472b6',
+  'Infrastructure':'#2dd4bf','Technology':'#818cf8','Healthcare':'#f87171',
+  'Metals & Mining':'#60a5fa','Oil & Chemicals':'#fbbf24','Telecom':'#a78bfa',
+  'Auto':'#fb923c','Real Estate':'#f87171','Other':'#94a3b8',
+};
+function indBg(ind){return IND_COLORS[ind]||'#94a3b8';}
+function indStyle(ind){const c=indBg(ind);return`background:${c}22;color:${c};border-color:${c}44`;}
+
+// ── FTRAC data map ─────────────────────────────────────────────
+function loadTabData(){try{return JSON.parse(sessionStorage.getItem('ftrac_tabdata')||'{}')}catch{return{}}}
+function allIssuers(){
+  const td=loadTabData(),set=new Set();
+  for(const[instr,rows]of Object.entries(td)){if(!rows)continue;const m=IMETA[instr];if(!m)continue;rows.forEach(r=>{const v=(r[m.ic]||'').trim();if(v)set.add(v);});}
+  return[...set].sort();
+}
+function buildIssuerMap(){
+  const td=loadTabData(),map={};
+  for(const[instr,rows]of Object.entries(td)){
+    if(!rows||!rows.length)continue;const m=IMETA[instr];if(!m)continue;
+    for(const row of rows){
+      const iss=(row[m.ic]||'').trim();if(!iss)continue;
+      const way=num(row[m.wc]),amt=num(row[m.ac]),date=(row[m.dc]||'').trim();
+      if(!map[iss])map[iss]={dates:{},totalAmt:0,allWays:[]};
+      if(!isNaN(amt))map[iss].totalAmt+=amt;
+      if(!isNaN(way)){map[iss].allWays.push(way);if(date){if(!map[iss].dates[date])map[iss].dates[date]=[];map[iss].dates[date].push(way);}}
+    }
+  }
+  return map;
+}
+
+// ── Watchlist render ──────────────────────────────────────────
+function renderWatchlist(){
+  const map=buildIssuerMap();
+  const body=document.getElementById('wl-body');
+  if(!watchlist.length){
+    body.innerHTML=`<div class="chart-empty" style="height:100px"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity=".4"><path d="M12 5v14M5 12h14"/></svg><span>Add issuers to track their rates</span></div>`;
+    updateStatCards(map);renderTrend();return;
+  }
+  function latestWay(iss){const d=map[iss];if(!d||!d.allWays.length)return NaN;const dates=Object.keys(d.dates).sort(dsort);return dates.length?avg(d.dates[dates[dates.length-1]]):avg(d.allWays);}
+  function prevWay(iss){const d=map[iss];if(!d)return NaN;const dates=Object.keys(d.dates).sort(dsort);if(dates.length<2)return NaN;return avg(d.dates[dates[dates.length-2]]);}
+  body.innerHTML=watchlist.map(w=>{
+    const ind=getInd(w.issuer),way=latestWay(w.issuer),prev=prevWay(w.issuer);
+    const diff=(!isNaN(way)&&!isNaN(prev))?((way-prev)*100).toFixed(1):null;
+    const chgCls=diff===null?'chg-f':parseFloat(diff)>0?'chg-u':parseFloat(diff)<0?'chg-d':'chg-f';
+    const chgTxt=diff===null?'—':parseFloat(diff)>0?`▲ ${diff}bps`:parseFloat(diff)<0?`▼ ${Math.abs(diff)}bps`:'— flat';
+    return`<div class="wi">
+      <div class="wi-left">
+        <div class="wi-name" title="${esc(w.issuer)}">${esc(w.issuer)}</div>
+        <div class="wi-meta"><span class="ind-tag" style="${indStyle(ind)}" onclick="openModal('${esc(w.issuer)}')" title="Click to edit">${esc(ind)} ✎</span>${w.indOverride?'<span style="font-size:10px;color:var(--muted)">custom</span>':''}</div>
+      </div>
+      <div class="wi-rate"><div class="wi-way">${isNaN(way)?'—':way.toFixed(4)+'%'}</div><div class="wi-chg ${chgCls}">${chgTxt}</div></div>
+      <button class="wi-rm" onclick="removeIssuer('${esc(w.issuer)}')" title="Remove">✕</button>
+    </div>`;
+  }).join('');
+  updateStatCards(map);renderTrend();renderHeatmap();
+}
+
+function updateStatCards(map){
+  const watched=watchlist.map(w=>w.issuer);
+  const myWays=watched.flatMap(iss=>map[iss]?.allWays||[]).filter(n=>!isNaN(n));
+  const allWays=Object.values(map).flatMap(d=>d.allWays).filter(n=>!isNaN(n));
+  const inds=new Set(watched.map(iss=>getInd(iss)));
+  set('sc-count',watched.length);
+  set('sc-ind',`across ${inds.size} industr${inds.size===1?'y':'ies'}`);
+  set('sc-myway',myWays.length?avg(myWays).toFixed(2)+'%':'—');
+  set('sc-mktway',allWays.length?avg(allWays).toFixed(2)+'%':'—');
+  if(myWays.length&&allWays.length){const diff=((avg(myWays)-avg(allWays))*100).toFixed(1);set('sc-mybps',`${parseFloat(diff)>=0?'+':''}${diff}bps vs market`);}
+  else set('sc-mybps','vs market');
+  set('sc-inds',inds.size||'—');
+}
+
+// ── Trend chart ────────────────────────────────────────────────
+function renderTrend(){
+  if(trendChart){trendChart.destroy();trendChart=null;}
+  const wrap=document.getElementById('trend-wrap'),leg=document.getElementById('trend-legend');
+  const map=buildIssuerMap();
+  const watched=watchlist.map(w=>w.issuer).filter(iss=>map[iss]);
+  if(!watched.length){wrap.innerHTML=`<div class="chart-empty"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity=".4"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Add issuers to watchlist</div>`;leg.innerHTML='';return;}
+  const dateSet=new Set();
+  watched.forEach(iss=>Object.keys(map[iss]?.dates||{}).forEach(d=>dateSet.add(d)));
+  const dates=[...dateSet].sort(dsort);
+  if(!dates.length){wrap.innerHTML=`<div class="chart-empty">No dated records — try a wider date range on the Data page</div>`;return;}
+  const mktByDate={};
+  dates.forEach(d=>{const vals=Object.values(map).flatMap(iss=>iss.dates[d]||[]).filter(n=>!isNaN(n));if(vals.length)mktByDate[d]=avg(vals);});
+  wrap.innerHTML='<canvas id="trend-canvas"></canvas>';
+  const datasets=watched.map((iss,i)=>({
+    label:iss.length>28?iss.slice(0,26)+'…':iss,
+    data:dates.map(d=>{const v=map[iss]?.dates[d];return v&&v.length?parseFloat(avg(v).toFixed(4)):null;}),
+    borderColor:COLORS[i%COLORS.length],backgroundColor:'transparent',borderWidth:2,pointRadius:3,tension:.3,spanGaps:true,
+  }));
+  datasets.push({label:'Market avg',data:dates.map(d=>mktByDate[d]?parseFloat(mktByDate[d].toFixed(4)):null),borderColor:'#475569',backgroundColor:'transparent',borderWidth:1,borderDash:[4,4],pointRadius:0,tension:.3,spanGaps:true});
+  trendChart=new Chart(document.getElementById('trend-canvas').getContext('2d'),{
+    type:'line',data:{labels:dates.map(dlabel),datasets},
+    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` ${ctx.dataset.label}: ${ctx.parsed.y?.toFixed(4)}%`}}},
+      scales:{x:{grid:{color:'#334155'},ticks:{font:{size:10},maxRotation:40}},y:{grid:{color:'#334155'},ticks:{callback:v=>v+'%',font:{size:10}}}}}
+  });
+  leg.innerHTML=[...watched,'Market avg'].map((n,i)=>{const c=i<watched.length?COLORS[i%COLORS.length]:'#475569';return`<div class="leg-item"><div class="leg-dot" style="background:${c}"></div>${esc(n.length>24?n.slice(0,22)+'…':n)}</div>`;}).join('');
+}
+
+// ── Heatmap ────────────────────────────────────────────────────
+function renderHeatmap(){
+  const el=document.getElementById('heatmap-wrap');if(!el)return;
+  const map=buildIssuerMap();
+  const watched=watchlist.map(w=>w.issuer).filter(iss=>map[iss]);
+  if(!watched.length){el.innerHTML=`<div class="chart-empty" style="height:80px">Add issuers to watchlist</div>`;return;}
+  const dateSet=new Set();
+  watched.forEach(iss=>Object.keys(map[iss]?.dates||{}).forEach(d=>dateSet.add(d)));
+  const dates=[...dateSet].sort(dsort).slice(-7);
+  if(!dates.length){el.innerHTML=`<div class="chart-empty" style="height:60px">No dated records found</div>`;return;}
+  const allV=watched.flatMap(iss=>dates.flatMap(d=>map[iss]?.dates[d]||[])).filter(n=>!isNaN(n));
+  const minV=Math.min(...allV),maxV=Math.max(...allV);
+  function hcls(v){if(isNaN(v))return'hna';const t=maxV===minV?.5:(v-minV)/(maxV-minV);if(t<.33)return'hlo';if(t<.6)return'hmid';if(t<.82)return'hhi';return'hvhi';}
+  const cols=`grid-template-columns: 120px repeat(${dates.length}, 1fr)`;
+  let html=`<div class="hm-grid" style="${cols}">`;
+  html+=`<div class="hm-hdr"></div>`+dates.map(d=>`<div class="hm-hdr">${dlabel(d)}</div>`).join('');
+  watched.forEach(iss=>{
+    html+=`<div class="hm-lbl" title="${esc(iss)}">${esc(iss.length>16?iss.slice(0,14)+'…':iss)}</div>`;
+    dates.forEach(d=>{const v=map[iss]?.dates[d];const val=v&&v.length?avg(v):NaN;html+=`<div class="hm-cell ${hcls(val)}">${isNaN(val)?'—':val.toFixed(2)}</div>`;});
+  });
+  html+='</div>';el.innerHTML=html;
+}
+
+// ── Watchlist management ───────────────────────────────────────
+function removeIssuer(issuer){watchlist=watchlist.filter(w=>w.issuer!==issuer);saveWatchlist();renderWatchlist();}
+function addFromInput(){const v=document.getElementById('add-input').value.trim();if(v){addIssuer(v);document.getElementById('add-input').value='';document.getElementById('ac-list').style.display='none';}}
+function addIssuer(name){if(watchlist.find(w=>w.issuer===name))return;watchlist.push({issuer:name,indOverride:null});saveWatchlist();renderWatchlist();}
+function onAddInput(){
+  const q=document.getElementById('add-input').value.trim().toLowerCase(),list=document.getElementById('ac-list');
+  if(!q||q.length<2){list.style.display='none';return;}
+  const all=allIssuers().filter(iss=>iss.toLowerCase().includes(q)&&!watchlist.find(w=>w.issuer===iss)).slice(0,8);
+  if(!all.length){list.style.display='none';return;}
+  list.innerHTML=all.map(iss=>`<div class="ac-item" onclick="selectAc('${esc(iss)}')">${esc(iss)}<small>${detectInd(iss)}</small></div>`).join('');
+  list.style.display='block';
+}
+function selectAc(name){document.getElementById('add-input').value='';document.getElementById('ac-list').style.display='none';addIssuer(name);}
+function onAddKey(e){if(e.key==='Enter')addFromInput();if(e.key==='Escape')document.getElementById('ac-list').style.display='none';}
+document.addEventListener('click',e=>{if(!e.target.closest('.ac-wrap'))document.getElementById('ac-list').style.display='none';});
+
+// ── Industry modal ─────────────────────────────────────────────
+function openModal(issuer){
+  editingIssuer=issuer;
+  const w=watchlist.find(x=>x.issuer===issuer);
+  document.getElementById('modal-issuer').textContent=issuer;
+  document.getElementById('modal-auto').textContent=detectInd(issuer);
+  document.getElementById('modal-input').value=w?.indOverride||'';
+  const known=[...new Set([...Object.keys(IND_COLORS),...watchlist.map(x=>getInd(x.issuer))])];
+  document.getElementById('ind-datalist').innerHTML=known.map(i=>`<option value="${esc(i)}">`).join('');
+  document.getElementById('ind-modal').style.display='flex';
+  setTimeout(()=>document.getElementById('modal-input').focus(),50);
+}
+function closeModal(){document.getElementById('ind-modal').style.display='none';editingIssuer=null;}
+function saveTag(){
+  if(!editingIssuer)return;
+  const val=document.getElementById('modal-input').value.trim();
+  const w=watchlist.find(x=>x.issuer===editingIssuer);
+  if(w)w.indOverride=val||null;
+  saveWatchlist();closeModal();renderWatchlist();
+}
+document.getElementById('ind-modal').addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();if(e.key==='Enter')saveTag();});
+
+// ── Utils ──────────────────────────────────────────────────────
+function num(v){return parseFloat(String(v||'').replace(/,/g,''));}
+function avg(arr){return arr.length?arr.reduce((s,n)=>s+n,0)/arr.length:NaN;}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function set(id,v){const el=document.getElementById(id);if(el)el.textContent=v;}
+function dsort(d){
+  let m;
+  if((m=d.match(/^(\d{2})[\/\-](\d{2})[\/\-](\d{4})$/)))return`${m[3]}${m[2]}${m[1]}`;
+  if((m=d.match(/^(\d{2})-([A-Za-z]{3})-(\d{4})$/)))return`${m[3]}${{jan:'01',feb:'02',mar:'03',apr:'04',may:'05',jun:'06',jul:'07',aug:'08',sep:'09',oct:'10',nov:'11',dec:'12'}[m[2].toLowerCase()]||'00'}${m[1]}`;
+  if((m=d.match(/^(\d{4})-(\d{2})-(\d{2})$/)))return`${m[1]}${m[2]}${m[3]}`;
+  return d;
+}
+function dlabel(d){
+  let m;
+  if((m=d.match(/^(\d{2})[\/\-](\d{2})[\/\-](\d{4})$/)))return`${m[1]}/${m[2]}`;
+  if((m=d.match(/^(\d{2})-([A-Za-z]{3})-(\d{4})$/)))return`${m[1]}-${m[2]}`;
+  return d;
+}
+const IND_COLORS={'Banking':'#38bdf8','NBFC':'#a78bfa','PSU / Govt':'#34d399','Manufacturing':'#fbbf24','Housing Finance':'#fb923c','Insurance':'#f472b6','Infrastructure':'#2dd4bf','Technology':'#818cf8','Healthcare':'#f87171','Metals & Mining':'#60a5fa','Oil & Chemicals':'#fbbf24','Telecom':'#a78bfa','Auto':'#fb923c','Real Estate':'#f87171','Other':'#94a3b8'};
+
+// ── Boot ──────────────────────────────────────────────────────
+document.getElementById('footer-time').textContent='Loaded '+new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+loadPrefs();
+window.addEventListener('storage',e=>{if(e.key==='ftrac_tabdata'){renderWatchlist();}});
+if('serviceWorker'in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});
+</script>
+</body>
+</html>

@@ -1,88 +1,71 @@
-# FTRAC Primary CP Issuances PWA
+# FTRAC Money Market PWA
 
-A live Progressive Web App that fetches and displays **Primary Commercial Paper issuances** from the [CCIL F-TRAC platform](https://www.ftrac.co.in/CP_PRI_MEM_TRAD_MARK_WATC_VIEW.aspx), with real-time issuer search and filtering.
+Live CP/CD primary & secondary issuance data from CCIL F-TRAC with personal rate tracking and AI-powered loan pricing guidance.
 
-## Features
+## Pages
 
-- **Live data** — fetches directly from FTRAC on load and auto-refreshes every 5 minutes
-- **Issuer search** — instant filter with highlighted matches
-- **Sortable columns** — click any header to sort (numeric-aware)
-- **Metrics summary** — total records, unique issuers, total ₹ amount, deal date range
-- **PWA** — installable on desktop and mobile, offline shell support
-- **No CORS issues** — data fetched server-side via a Vercel serverless function
+| Page | File | Purpose |
+|---|---|---|
+| Data | `index.html` | Fetch live FTRAC data across 4 instrument tabs with date range filter |
+| My accounts | `accounts.html` | Personal watchlist with yield trend chart and heatmap |
+| Guidance | `guidance.html` | Borrowing range strips, positioning, AI talking points, rate alerts |
 
-## Project Structure
+## API routes
 
-```
-ftrac-cp-pwa/
-├── api/
-│   └── ftrac.js        ← Vercel serverless function (fetches FTRAC page)
-├── public/
-│   ├── index.html      ← PWA frontend
-│   ├── manifest.json   ← PWA manifest
-│   └── sw.js           ← Service worker
-├── package.json
-├── vercel.json
-└── README.md
-```
+| Route | Purpose |
+|---|---|
+| `GET /api/ftrac` | Fetches FTRAC page server-side (GET+POST with date injection) |
+| `GET /api/user?key=` | Read persisted user preference from Upstash Redis |
+| `POST /api/user` | Write user preference to Upstash Redis |
+| `POST /api/talking-points` | Generate AI talking points via Claude API |
 
-## Deploy in 3 steps
+## Deploy
 
 ### 1. Push to GitHub
-
 ```bash
-git init
 git add .
-git commit -m "Initial commit"
-gh repo create ftrac-cp-pwa --public --push --source=.
+git commit -m "feat: full rebuild with accounts, guidance, Upstash persistence, AI talking points"
+git push
 ```
 
-Or create a repo on [github.com](https://github.com/new) and follow the instructions to push.
+### 2. Set up Upstash (free — takes 2 minutes)
+1. Go to [console.upstash.com](https://console.upstash.com) → Create account → Create Database
+2. Choose **Redis** → Region: **Asia Pacific (Mumbai)** → Free tier
+3. Copy **REST URL** and **REST Token** from the database page
 
-### 2. Deploy to Vercel
+### 3. Set up Anthropic API key (for AI talking points)
+1. Go to [console.anthropic.com](https://console.anthropic.com) → API Keys → Create key
+2. Copy the key
 
-**Option A — Vercel dashboard (easiest):**
-1. Go to [vercel.com/new](https://vercel.com/new)
-2. Import your GitHub repository
-3. Leave all settings as default — Vercel auto-detects the config
-4. Click **Deploy**
+### 4. Add environment variables to Vercel
+In your Vercel project → Settings → Environment Variables, add:
 
-**Option B — Vercel CLI:**
-```bash
-npm i -g vercel
-vercel --prod
-```
+| Name | Value |
+|---|---|
+| `UPSTASH_REDIS_REST_URL` | Your Upstash REST URL |
+| `UPSTASH_REDIS_REST_TOKEN` | Your Upstash REST Token |
+| `ANTHROPIC_API_KEY` | Your Anthropic API key |
 
-### 3. Done
-
-Your app will be live at `https://ftrac-cp-pwa.vercel.app` (or your chosen domain).
-
-## Local development
-
-```bash
-npm i -g vercel
-vercel dev
-```
-
-This runs both the static frontend and the `/api/ftrac` serverless function locally at `http://localhost:3000`.
+### 5. Redeploy
+Vercel auto-redeploys on push. Or click **Redeploy** in the Vercel dashboard after adding env vars.
 
 ## How it works
 
 ```
-Browser → GET /api/ftrac → Vercel Function → fetches ftrac.co.in → returns HTML
-Browser parses the HTML table → renders filtered results
+Browser → GET /api/ftrac?instrument=cp-primary&from=...&to=...
+        → Vercel function fetches FTRAC (GET for tokens + POST with dates)
+        → Returns HTML → Browser parses table → sessionStorage
+
+Browser → GET/POST /api/user
+        → Vercel function reads/writes Upstash Redis
+        → Watchlist, thresholds, industry overrides persist across devices
+
+Browser → POST /api/talking-points
+        → Vercel function sends issuer positioning data to Claude API
+        → Returns JSON array of 3-4 actionable talking points
 ```
 
-The serverless function in `api/ftrac.js` fetches the FTRAC ASPX page server-side (no CORS restriction on the server), then passes the HTML back to the browser. The browser parses the largest `<table>` it finds and renders the data.
+## Graceful fallback
+If Upstash is not configured, `/api/user` returns `{ fallback: true }` and the app falls back to localStorage — so it works without Redis, just not cross-device.
 
-The API response is cached by Vercel's edge network for **5 minutes** (`s-maxage=300`), so repeated loads are instant and don't hammer FTRAC.
-
-## Customisation
-
-| What | Where |
-|------|-------|
-| Issuer column index | `ISSUER_COL` constant in `public/index.html` |
-| Rows per page | `PAGE_SIZE` constant in `public/index.html` |
-| Auto-refresh interval | `setInterval(loadData, 5 * 60 * 1000)` in `public/index.html` |
-| FTRAC source URL | `FTRAC_URL` constant in `api/ftrac.js` |
-| CDN cache duration | `s-maxage` in `vercel.json` headers |
+If `ANTHROPIC_API_KEY` is not set, the Generate button shows an error message — the rest of the app continues to work normally.
